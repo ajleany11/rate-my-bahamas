@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import generics, permissions
 
 from .models import School
@@ -5,7 +6,7 @@ from .serializers import SchoolDetailSerializer, SchoolListSerializer
 
 
 class SchoolListView(generics.ListAPIView):
-    queryset = School.objects.all()
+    queryset = School.objects.annotate(department_count=Count('departments'))
     serializer_class = SchoolListSerializer
     permission_classes = [permissions.AllowAny]
 

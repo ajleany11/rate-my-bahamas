@@ -10,9 +10,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class SchoolListSerializer(serializers.ModelSerializer):
+    department_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = School
-        fields = ('id', 'name', 'slug')
+        fields = ('id', 'name', 'slug', 'department_count')
 
 
 class SchoolDetailSerializer(serializers.ModelSerializer):

@@ -7,6 +7,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import SchoolDetail from './pages/SchoolDetail'
+import Schools from './pages/Schools'
+import SearchResults from './pages/SearchResults'
 import RequireAuth from './components/RequireAuth'
 
 function App() {
@@ -19,7 +21,9 @@ function App() {
         <Route path="/verify-code" element={<VerifyCode />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/schools" element={<Schools />} />
         <Route path="/schools/:slug" element={<SchoolDetail />} />
+        <Route path="/search" element={<SearchResults />} />
         <Route
           path="/dashboard"
           element={
