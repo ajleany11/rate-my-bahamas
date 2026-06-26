@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { getSchoolDetail } from '../api/schools'
 
@@ -53,15 +53,16 @@ function SchoolDetail() {
             ) : (
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {school.departments.map((department) => (
-                  <div
+                  <Link
                     key={department.id}
-                    className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-shadow"
+                    to={`/departments/${department.slug}`}
+                    className="block bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-shadow"
                   >
                     <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                       <DepartmentIcon />
                     </div>
                     <h3 className="mt-4 font-serif font-bold text-blue-900">{department.name}</h3>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

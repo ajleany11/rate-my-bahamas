@@ -127,7 +127,7 @@ function SearchResults() {
                   visibleItems.map((department) => (
                     <Link
                       key={department.id}
-                      to={`/schools/${department.school.slug}`}
+                      to={`/departments/${department.slug}`}
                       className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
                     >
                       <p className="font-semibold text-blue-900">{department.name}</p>

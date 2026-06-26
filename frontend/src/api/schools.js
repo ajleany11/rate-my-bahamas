@@ -15,3 +15,11 @@ export async function getSchoolDetail(slug) {
   }
   return res.json()
 }
+
+export async function getDepartmentDetail(slug) {
+  const res = await fetch(`${API_BASE_URL}/api/schools/departments/${slug}/`)
+  if (!res.ok) {
+    throw new Error('Failed to load department.')
+  }
+  return res.json()
+}
