@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Course, Professor, Review
+from .models import Course, Professor, ProfessorCourse, Review
 
 
 @admin.register(Professor)
@@ -15,7 +15,13 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name')
 
 
+@admin.register(ProfessorCourse)
+class ProfessorCourseAdmin(admin.ModelAdmin):
+    list_display = ('professor', 'course')
+    search_fields = ('professor__name', 'course__code', 'course__name')
+
+
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('user', 'professor', 'course', 'rating', 'difficulty', 'created_at')
-    list_filter = ('rating', 'difficulty')
+    list_display = ('user', 'professor', 'course', 'rating', 'difficulty', 'would_take_again', 'created_at')
+    list_filter = ('rating', 'difficulty', 'would_take_again')

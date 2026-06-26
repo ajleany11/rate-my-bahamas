@@ -44,13 +44,48 @@ function CourseDetail() {
               <p className="mt-2 text-slate-500">No professors listed for this course yet.</p>
             ) : (
               <div className="mt-3 space-y-3">
-                {course.professors.map((professor) => (
+                {course.professors.map((professorCourse) => (
                   <div
-                    key={professor.id}
+                    key={professorCourse.id}
                     className="bg-slate-50 rounded-xl border border-slate-100 p-4"
                   >
-                    <p className="font-semibold text-blue-900">{professor.name}</p>
-                    <p className="text-sm text-slate-400">{professor.department}</p>
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-blue-900">{professorCourse.professor.name}</p>
+                        <p className="text-sm text-slate-400">{professorCourse.professor.department}</p>
+                      </div>
+                      {professorCourse.average_rating !== null && (
+                        <div className="text-right shrink-0">
+                          <p className="text-lg font-bold text-blue-900">
+                            {professorCourse.average_rating}
+                            <span className="text-sm font-normal text-slate-400">/5</span>
+                          </p>
+                          <p className="text-xs text-slate-400">for {course.code}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-4 text-sm text-slate-500">
+                        {professorCourse.would_take_again_percent !== null && (
+                          <span>
+                            <span className="font-semibold text-blue-900">
+                              {professorCourse.would_take_again_percent}%
+                            </span>{' '}
+                            would take again
+                          </span>
+                        )}
+                        <span>
+                          {professorCourse.review_count}{' '}
+                          {professorCourse.review_count === 1 ? 'review' : 'reviews'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="shrink-0 text-sm font-semibold text-amber-600 border border-amber-200 rounded-full px-4 py-1.5 hover:bg-amber-50"
+                      >
+                        Rate this Professor
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

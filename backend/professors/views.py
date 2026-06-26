@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
 
-from .models import Course
-from .serializers import CourseDetailSerializer
+from .models import Course, ProfessorCourse
+from .serializers import CourseDetailSerializer, ProfessorCourseDetailSerializer
 
 
 class CourseDetailView(generics.RetrieveAPIView):
@@ -9,3 +9,9 @@ class CourseDetailView(generics.RetrieveAPIView):
     serializer_class = CourseDetailSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'code'
+
+
+class ProfessorCourseDetailView(generics.RetrieveAPIView):
+    queryset = ProfessorCourse.objects.select_related('professor', 'course')
+    serializer_class = ProfessorCourseDetailSerializer
+    permission_classes = [permissions.AllowAny]

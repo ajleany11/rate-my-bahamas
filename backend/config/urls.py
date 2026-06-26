@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from professors.views import ProfessorCourseDetailView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -26,4 +28,5 @@ urlpatterns = [
     path('api/courses/', include('professors.urls')),
     path('api/schools/', include('schools.urls')),
     path('api/search/', include('search.urls')),
+    path('api/professor-course/<int:pk>/', ProfessorCourseDetailView.as_view(), name='professor-course-detail'),
 ]
