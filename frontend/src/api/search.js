@@ -7,3 +7,11 @@ export async function search(query) {
   }
   return res.json()
 }
+
+export async function getAutocompleteSuggestions(query) {
+  const res = await fetch(`${API_BASE_URL}/api/search/autocomplete/?q=${encodeURIComponent(query)}`)
+  if (!res.ok) {
+    throw new Error('Autocomplete failed.')
+  }
+  return res.json()
+}

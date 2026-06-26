@@ -23,3 +23,11 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = ('id', 'name', 'slug', 'departments')
+
+
+class DepartmentSearchSerializer(serializers.ModelSerializer):
+    school = SchoolListSerializer(read_only=True)
+
+    class Meta:
+        model = Department
+        fields = ('id', 'name', 'slug', 'school')

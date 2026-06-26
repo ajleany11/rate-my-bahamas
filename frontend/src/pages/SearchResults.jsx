@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { search } from '../api/search'
 
 const TABS = [
   { key: 'courses', label: 'Courses' },
+  { key: 'departments', label: 'Departments' },
   { key: 'professors', label: 'Professors' },
   { key: 'schools', label: 'Schools' },
 ]
+
+// Only these tabs have a `department` string field to filter on.
+const FILTERABLE_TABS = new Set(['courses', 'professors'])
 
 function SearchResults() {
   const [searchParams] = useSearchParams()
@@ -16,17 +20,35 @@ function SearchResults() {
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('courses')
+  const [departmentFilter, setDepartmentFilter] = useState('all')
 
   useEffect(() => {
     setResults(null)
     setError(null)
     setActiveTab('courses')
+    setDepartmentFilter('all')
 
     if (!query) return
     search(query)
       .then(setResults)
       .catch(() => setError('Search failed.'))
   }, [query])
+
+  useEffect(() => {
+    setDepartmentFilter('all')
+  }, [activeTab])
+
+  const activeItems = useMemo(() => (results ? results[activeTab] : []), [results, activeTab])
+
+  const departmentOptions = useMemo(() => {
+    if (!FILTERABLE_TABS.has(activeTab)) return []
+    return [...new Set(activeItems.map((item) => item.department))].sort()
+  }, [activeTab, activeItems])
+
+  const visibleItems =
+    FILTERABLE_TABS.has(activeTab) && departmentFilter !== 'all'
+      ? activeItems.filter((item) => item.department === departmentFilter)
+      : activeItems
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -59,12 +81,33 @@ function SearchResults() {
               ))}
             </div>
 
+            {FILTERABLE_TABS.has(activeTab) && departmentOptions.length > 0 && (
+              <div className="mt-4 flex items-center gap-2">
+                <label htmlFor="department-filter" className="text-sm text-slate-500">
+                  Department
+                </label>
+                <select
+                  id="department-filter"
+                  value={departmentFilter}
+                  onChange={(event) => setDepartmentFilter(event.target.value)}
+                  className="rounded-lg border border-slate-300 text-sm py-1.5 px-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900"
+                >
+                  <option value="all">All departments</option>
+                  {departmentOptions.map((department) => (
+                    <option key={department} value={department}>
+                      {department}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="mt-6 space-y-3">
               {activeTab === 'courses' &&
-                (results.courses.length === 0 ? (
+                (visibleItems.length === 0 ? (
                   <p className="text-slate-500">No courses found.</p>
                 ) : (
-                  results.courses.map((course) => (
+                  visibleItems.map((course) => (
                     <div
                       key={course.id}
                       className="bg-white rounded-xl border border-slate-100 shadow-sm p-4"
@@ -76,11 +119,27 @@ function SearchResults() {
                   ))
                 ))}
 
+              {activeTab === 'departments' &&
+                (visibleItems.length === 0 ? (
+                  <p className="text-slate-500">No departments found.</p>
+                ) : (
+                  visibleItems.map((department) => (
+                    <Link
+                      key={department.id}
+                      to={`/schools/${department.school.slug}`}
+                      className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
+                    >
+                      <p className="font-semibold text-blue-900">{department.name}</p>
+                      <p className="text-sm text-slate-400">{department.school.name}</p>
+                    </Link>
+                  ))
+                ))}
+
               {activeTab === 'professors' &&
-                (results.professors.length === 0 ? (
+                (visibleItems.length === 0 ? (
                   <p className="text-slate-500">No professors found.</p>
                 ) : (
-                  results.professors.map((professor) => (
+                  visibleItems.map((professor) => (
                     <div
                       key={professor.id}
                       className="bg-white rounded-xl border border-slate-100 shadow-sm p-4"
@@ -92,10 +151,10 @@ function SearchResults() {
                 ))}
 
               {activeTab === 'schools' &&
-                (results.schools.length === 0 ? (
+                (visibleItems.length === 0 ? (
                   <p className="text-slate-500">No schools found.</p>
                 ) : (
-                  results.schools.map((school) => (
+                  visibleItems.map((school) => (
                     <Link
                       key={school.id}
                       to={`/schools/${school.slug}`}
