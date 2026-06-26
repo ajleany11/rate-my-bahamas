@@ -1,3 +1,11 @@
-from django.shortcuts import render
+from rest_framework import generics, permissions
 
-# Create your views here.
+from .models import Course
+from .serializers import CourseDetailSerializer
+
+
+class CourseDetailView(generics.RetrieveAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseDetailSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'code'

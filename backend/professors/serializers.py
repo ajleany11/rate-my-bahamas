@@ -9,6 +9,12 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ('id', 'code', 'name', 'department')
 
 
+class CourseDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ('id', 'code', 'name', 'department', 'description')
+
+
 class ProfessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Professor

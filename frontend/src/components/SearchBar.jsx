@@ -54,10 +54,19 @@ function SearchBar({ placeholder = 'Search courses, professors, schools...', cla
     navigate(`/search?q=${encodeURIComponent(term)}`)
   }
 
+  function goToSuggestion(suggestion) {
+    setIsOpen(false)
+    if (suggestion.type === 'course') {
+      navigate(`/courses/${encodeURIComponent(suggestion.query)}`)
+    } else {
+      navigate(`/search?q=${encodeURIComponent(suggestion.query)}`)
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
     if (activeIndex >= 0 && suggestions[activeIndex]) {
-      goToResults(suggestions[activeIndex].query)
+      goToSuggestion(suggestions[activeIndex])
       return
     }
     if (!query.trim()) return
@@ -66,7 +75,7 @@ function SearchBar({ placeholder = 'Search courses, professors, schools...', cla
 
   function handleSuggestionClick(suggestion) {
     setQuery(suggestion.query)
-    goToResults(suggestion.query)
+    goToSuggestion(suggestion)
   }
 
   function handleKeyDown(event) {

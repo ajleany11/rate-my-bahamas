@@ -108,14 +108,15 @@ function SearchResults() {
                   <p className="text-slate-500">No courses found.</p>
                 ) : (
                   visibleItems.map((course) => (
-                    <div
+                    <Link
                       key={course.id}
-                      className="bg-white rounded-xl border border-slate-100 shadow-sm p-4"
+                      to={`/courses/${course.code}`}
+                      className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
                     >
                       <p className="font-semibold text-blue-900">{course.code}</p>
                       <p className="text-slate-700">{course.name}</p>
                       <p className="text-sm text-slate-400">{course.department}</p>
-                    </div>
+                    </Link>
                   ))
                 ))}
 

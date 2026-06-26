@@ -5,6 +5,7 @@ import Signup from './pages/Signup'
 import VerifyCode from './pages/VerifyCode'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import CourseDetail from './pages/CourseDetail'
 import Dashboard from './pages/Dashboard'
 import SchoolDetail from './pages/SchoolDetail'
 import Schools from './pages/Schools'
@@ -21,6 +22,7 @@ function App() {
         <Route path="/verify-code" element={<VerifyCode />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/courses/:code" element={<CourseDetail />} />
         <Route path="/schools" element={<Schools />} />
         <Route path="/schools/:slug" element={<SchoolDetail />} />
         <Route path="/search" element={<SearchResults />} />
