@@ -66,6 +66,7 @@ class SearchAutocompleteView(APIView):
                 'type': 'professor',
                 'label': professor.name,
                 'query': professor.name,
+                'slug': professor.slug,
             })
 
         for department in Department.objects.filter(name__icontains=query)[:AUTOCOMPLETE_LIMIT]:

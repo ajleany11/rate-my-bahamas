@@ -42,6 +42,7 @@ class Review(models.Model):
     rating = models.PositiveSmallIntegerField()
     difficulty = models.PositiveSmallIntegerField()
     would_take_again = models.BooleanField(default=True)
+    uses_textbook = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

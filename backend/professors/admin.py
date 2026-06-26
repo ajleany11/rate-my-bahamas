@@ -23,5 +23,5 @@ class ProfessorCourseAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('user', 'professor', 'course', 'rating', 'difficulty', 'would_take_again', 'created_at')
-    list_filter = ('rating', 'difficulty', 'would_take_again')
+    list_display = ('user', 'professor', 'course', 'rating', 'difficulty', 'would_take_again', 'uses_textbook', 'created_at')
+    list_filter = ('rating', 'difficulty', 'would_take_again', 'uses_textbook')

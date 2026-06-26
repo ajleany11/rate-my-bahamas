@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import WriteReviewModal from '../components/WriteReviewModal'
 import { getCourseDetail, getSimilarCourses } from '../api/courses'
+import { isAuthenticated } from '../api/auth'
 
 function CourseDetail() {
   const { code } = useParams()
+  const navigate = useNavigate()
   const [course, setCourse] = useState(null)
   const [error, setError] = useState(null)
   const [similarCourses, setSimilarCourses] = useState([])
+  const [reviewTarget, setReviewTarget] = useState(null)
 
   useEffect(() => {
     setCourse(null)
@@ -20,6 +24,19 @@ function CourseDetail() {
       .then(setSimilarCourses)
       .catch(() => {})
   }, [code])
+
+  async function handleRateClick(professor) {
+    if (!(await isAuthenticated())) {
+      navigate('/login')
+      return
+    }
+    setReviewTarget(professor)
+  }
+
+  function handleReviewSubmitted() {
+    setReviewTarget(null)
+    getCourseDetail(code).then(setCourse)
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -91,6 +108,7 @@ function CourseDetail() {
                       </div>
                       <button
                         type="button"
+                        onClick={() => handleRateClick(professorCourse.professor)}
                         className="shrink-0 text-sm font-semibold text-amber-600 border border-amber-200 rounded-full px-4 py-1.5 hover:bg-amber-50"
                       >
                         Rate this Professor
@@ -123,6 +141,15 @@ function CourseDetail() {
           </div>
         )}
       </section>
+
+      {reviewTarget && course && (
+        <WriteReviewModal
+          professor={reviewTarget}
+          course={course}
+          onClose={() => setReviewTarget(null)}
+          onSubmitted={handleReviewSubmitted}
+        />
+      )}
     </div>
   )
 }

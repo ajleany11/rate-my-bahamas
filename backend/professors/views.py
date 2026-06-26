@@ -1,8 +1,15 @@
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 
 from .models import Course, Professor, ProfessorCourse
-from .serializers import CourseDetailSerializer, CourseSerializer, ProfessorCourseDetailSerializer, ProfessorDetailSerializer
+from .serializers import (
+    CourseDetailSerializer,
+    CourseSerializer,
+    ProfessorCourseDetailSerializer,
+    ProfessorDetailSerializer,
+    ReviewCreateSerializer,
+)
 
 SIMILAR_COURSES_LIMIT = 6
 
@@ -32,7 +39,18 @@ class ProfessorCourseDetailView(generics.RetrieveAPIView):
 
 
 class ProfessorDetailView(generics.RetrieveAPIView):
-    queryset = Professor.objects.all()
+    queryset = Professor.objects.prefetch_related(
+        Prefetch('professor_courses', queryset=ProfessorCourse.objects.select_related('course').order_by('course__code')),
+        'reviews',
+    )
     serializer_class = ProfessorDetailSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
+
+
+class ReviewCreateView(generics.CreateAPIView):
+    serializer_class = ReviewCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

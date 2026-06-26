@@ -58,6 +58,8 @@ function SearchBar({ placeholder = 'Search courses, professors, schools...', cla
     setIsOpen(false)
     if (suggestion.type === 'course') {
       navigate(`/courses/${encodeURIComponent(suggestion.query)}`)
+    } else if (suggestion.type === 'professor' && suggestion.slug) {
+      navigate(`/professors/${encodeURIComponent(suggestion.slug)}`)
     } else {
       navigate(`/search?q=${encodeURIComponent(suggestion.query)}`)
     }
