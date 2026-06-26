@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { getCourseDetail } from '../api/courses'
+import { getCourseDetail, getSimilarCourses } from '../api/courses'
 
 function CourseDetail() {
   const { code } = useParams()
   const [course, setCourse] = useState(null)
   const [error, setError] = useState(null)
+  const [similarCourses, setSimilarCourses] = useState([])
 
   useEffect(() => {
     setCourse(null)
     setError(null)
+    setSimilarCourses([])
     getCourseDetail(code)
       .then(setCourse)
       .catch(() => setError('Failed to load this course.'))
+    getSimilarCourses(code)
+      .then(setSimilarCourses)
+      .catch(() => {})
   }, [code])
 
   return (
@@ -51,7 +56,12 @@ function CourseDetail() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-semibold text-blue-900">{professorCourse.professor.name}</p>
+                        <Link
+                          to={`/professors/${professorCourse.professor.slug}`}
+                          className="font-semibold text-blue-900 hover:underline"
+                        >
+                          {professorCourse.professor.name}
+                        </Link>
                         <p className="text-sm text-slate-400">{professorCourse.professor.department}</p>
                       </div>
                       {professorCourse.average_rating !== null && (
@@ -90,6 +100,26 @@ function CourseDetail() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {similarCourses.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+              Similar Courses
+            </h2>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {similarCourses.map((similar) => (
+                <Link
+                  key={similar.id}
+                  to={`/courses/${similar.code}`}
+                  className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
+                >
+                  <p className="font-semibold text-blue-900">{similar.code}</p>
+                  <p className="text-slate-700">{similar.name}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </section>

@@ -15,6 +15,49 @@ def professor_courses_with_stats(course):
     ).order_by('professor__name')
 
 
+def courses_taught_for_professor(professor):
+    """Every course `professor` has reviews for, each with its own rating/would-take-again stats."""
+    stats_by_course = {
+        row['course_id']: row
+        for row in Review.objects.filter(professor=professor).values('course_id').annotate(
+            avg_rating=Avg('rating'),
+            review_count=Count('id'),
+            would_take_again_count=Count('id', filter=Q(would_take_again=True)),
+        )
+    }
+
+    results = []
+    professor_courses = ProfessorCourse.objects.filter(professor=professor).select_related('course').order_by('course__code')
+    for pc in professor_courses:
+        stats = stats_by_course.get(pc.course_id, {'avg_rating': None, 'review_count': 0, 'would_take_again_count': 0})
+        review_count = stats['review_count']
+        results.append({
+            'id': pc.id,
+            'course': CourseSerializer(pc.course).data,
+            'review_count': review_count,
+            'average_rating': round(stats['avg_rating'], 1) if stats['avg_rating'] is not None else None,
+            'would_take_again_percent': (
+                round(stats['would_take_again_count'] / review_count * 100) if review_count else None
+            ),
+        })
+    return results
+
+
+def overall_stats_for_professor(courses_taught):
+    """Overall rating / would-take-again %, averaged across each ProfessorCourse record (every course counts equally)."""
+    rated = [c for c in courses_taught if c['average_rating'] is not None]
+    review_count = sum(c['review_count'] for c in courses_taught)
+
+    if not rated:
+        return {'average_rating': None, 'would_take_again_percent': None, 'review_count': review_count}
+
+    return {
+        'average_rating': round(sum(c['average_rating'] for c in rated) / len(rated), 1),
+        'would_take_again_percent': round(sum(c['would_take_again_percent'] for c in rated) / len(rated)),
+        'review_count': review_count,
+    }
+
+
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
@@ -83,3 +126,19 @@ class ProfessorCourseDetailSerializer(serializers.ModelSerializer):
             return None
         would_again = reviews.filter(would_take_again=True).count()
         return round(would_again / total * 100)
+
+
+class ProfessorDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Professor
+        fields = ('id', 'name', 'department', 'slug', 'photo_url')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        courses_taught = courses_taught_for_professor(instance)
+        overall = overall_stats_for_professor(courses_taught)
+        data['courses_taught'] = courses_taught
+        data['overall_average_rating'] = overall['average_rating']
+        data['overall_would_take_again_percent'] = overall['would_take_again_percent']
+        data['overall_review_count'] = overall['review_count']
+        return data

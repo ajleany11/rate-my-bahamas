@@ -7,3 +7,11 @@ export async function getCourseDetail(code) {
   }
   return res.json()
 }
+
+export async function getSimilarCourses(code) {
+  const res = await fetch(`${API_BASE_URL}/api/courses/${code}/similar/`)
+  if (!res.ok) {
+    throw new Error('Failed to load similar courses.')
+  }
+  return res.json()
+}

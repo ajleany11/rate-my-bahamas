@@ -8,6 +8,7 @@ import ResetPassword from './pages/ResetPassword'
 import CourseDetail from './pages/CourseDetail'
 import Dashboard from './pages/Dashboard'
 import DepartmentDetail from './pages/DepartmentDetail'
+import ProfessorDetail from './pages/ProfessorDetail'
 import SchoolDetail from './pages/SchoolDetail'
 import Schools from './pages/Schools'
 import SearchResults from './pages/SearchResults'
@@ -27,6 +28,7 @@ function App() {
         <Route path="/schools" element={<Schools />} />
         <Route path="/schools/:slug" element={<SchoolDetail />} />
         <Route path="/departments/:slug" element={<DepartmentDetail />} />
+        <Route path="/professors/:slug" element={<ProfessorDetail />} />
         <Route path="/search" element={<SearchResults />} />
         <Route
           path="/dashboard"
