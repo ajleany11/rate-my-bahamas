@@ -23,10 +23,16 @@ class Course(models.Model):
 
 
 class ProfessorCourse(models.Model):
-    """A professor-course pairing: this professor has reviews for this course."""
+    """A professor-course pairing: this professor teaches (or has reviews for) this course.
+
+    `confirmed` is False when a user has merely claimed the pairing (e.g. via the
+    "add a professor to this class" form) with no review backing it yet. It becomes True
+    automatically once a real review is submitted for the pairing, or manually via admin.
+    """
 
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE, related_name='professor_courses')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='professor_courses')
+    confirmed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('professor', 'course')
@@ -50,5 +56,10 @@ class Review(models.Model):
         return f'{self.user} on {self.professor} ({self.rating}/5)'
 
     def save(self, *args, **kwargs):
-        ProfessorCourse.objects.get_or_create(professor=self.professor, course=self.course)
+        pc, created = ProfessorCourse.objects.get_or_create(
+            professor=self.professor, course=self.course, defaults={'confirmed': True}
+        )
+        if not created and not pc.confirmed:
+            pc.confirmed = True
+            pc.save(update_fields=['confirmed'])
         super().save(*args, **kwargs)

@@ -17,7 +17,9 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(ProfessorCourse)
 class ProfessorCourseAdmin(admin.ModelAdmin):
-    list_display = ('professor', 'course')
+    list_display = ('professor', 'course', 'confirmed')
+    list_filter = ('confirmed',)
+    list_editable = ('confirmed',)
     search_fields = ('professor__name', 'course__code', 'course__name')
 
 

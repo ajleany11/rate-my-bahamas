@@ -18,7 +18,13 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from professors.views import ProfessorCourseDetailView, ProfessorDetailView, ReviewCreateView
+from professors.views import (
+    ProfessorCourseCreateView,
+    ProfessorCourseDetailView,
+    ProfessorDetailView,
+    ProfessorListView,
+    ReviewCreateView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,7 +34,9 @@ urlpatterns = [
     path('api/courses/', include('professors.urls')),
     path('api/schools/', include('schools.urls')),
     path('api/search/', include('search.urls')),
+    path('api/professor-course/', ProfessorCourseCreateView.as_view(), name='professor-course-create'),
     path('api/professor-course/<int:pk>/', ProfessorCourseDetailView.as_view(), name='professor-course-detail'),
+    path('api/professors/', ProfessorListView.as_view(), name='professor-list'),
     path('api/professors/<slug:slug>/', ProfessorDetailView.as_view(), name='professor-detail'),
     path('api/reviews/', ReviewCreateView.as_view(), name='review-create'),
 ]

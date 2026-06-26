@@ -6,8 +6,10 @@ from .models import Course, Professor, ProfessorCourse
 from .serializers import (
     CourseDetailSerializer,
     CourseSerializer,
+    ProfessorCourseCreateSerializer,
     ProfessorCourseDetailSerializer,
     ProfessorDetailSerializer,
+    ProfessorSerializer,
     ReviewCreateSerializer,
 )
 
@@ -35,6 +37,17 @@ class SimilarCoursesView(generics.ListAPIView):
 class ProfessorCourseDetailView(generics.RetrieveAPIView):
     queryset = ProfessorCourse.objects.select_related('professor', 'course')
     serializer_class = ProfessorCourseDetailSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class ProfessorCourseCreateView(generics.CreateAPIView):
+    serializer_class = ProfessorCourseCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class ProfessorListView(generics.ListAPIView):
+    queryset = Professor.objects.all().order_by('name')
+    serializer_class = ProfessorSerializer
     permission_classes = [permissions.AllowAny]
 
 

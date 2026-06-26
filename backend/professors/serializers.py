@@ -1,5 +1,6 @@
 from django.db.models import Avg, Count, Q
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Course, Professor, ProfessorCourse, Review
 
@@ -16,7 +17,8 @@ def professor_courses_with_stats(course):
 
 
 def courses_taught_for_professor(professor):
-    """Every course `professor` has reviews for, each with its own rating/would-take-again stats.
+    """Every course `professor` has reviews for, each with its own rating/would-take-again stats
+    and the full (anonymous) list of reviews for that course.
 
     Expects `professor` to come from a queryset with
     `prefetch_related('professor_courses__course', 'reviews')` so this performs no extra queries.
@@ -27,11 +29,14 @@ def courses_taught_for_professor(professor):
 
     results = []
     for pc in professor.professor_courses.all():
-        course_reviews = reviews_by_course.get(pc.course_id, [])
+        course_reviews = sorted(
+            reviews_by_course.get(pc.course_id, []), key=lambda r: r.created_at, reverse=True
+        )
         review_count = len(course_reviews)
         results.append({
             'id': pc.id,
             'course': CourseSerializer(pc.course).data,
+            'confirmed': pc.confirmed,
             'review_count': review_count,
             'average_rating': (
                 round(sum(r.rating for r in course_reviews) / review_count, 1) if review_count else None
@@ -40,6 +45,7 @@ def courses_taught_for_professor(professor):
                 round(sum(1 for r in course_reviews if r.would_take_again) / review_count * 100)
                 if review_count else None
             ),
+            'reviews': ReviewSerializer(course_reviews, many=True).data,
         })
     return results
 
@@ -74,6 +80,7 @@ class ProfessorSerializer(serializers.ModelSerializer):
 class ProfessorCourseStatsSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     professor = ProfessorSerializer(read_only=True)
+    confirmed = serializers.BooleanField()
     review_count = serializers.IntegerField()
     average_rating = serializers.SerializerMethodField()
     would_take_again_percent = serializers.SerializerMethodField()
@@ -99,16 +106,28 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         return ProfessorCourseStatsSerializer(professor_courses, many=True).data
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    """Deliberately omits `user` — reviews are shown anonymously."""
+
+    class Meta:
+        model = Review
+        fields = ('id', 'rating', 'difficulty', 'would_take_again', 'uses_textbook', 'comment', 'created_at')
+
+
 class ProfessorCourseDetailSerializer(serializers.ModelSerializer):
     professor = ProfessorSerializer(read_only=True)
     course = CourseSerializer(read_only=True)
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     would_take_again_percent = serializers.SerializerMethodField()
+    reviews = serializers.SerializerMethodField()
 
     class Meta:
         model = ProfessorCourse
-        fields = ('id', 'professor', 'course', 'review_count', 'average_rating', 'would_take_again_percent')
+        fields = (
+            'id', 'professor', 'course', 'confirmed', 'review_count', 'average_rating', 'would_take_again_percent',
+            'reviews',
+        )
 
     def _reviews(self, obj):
         return Review.objects.filter(professor=obj.professor, course=obj.course)
@@ -127,6 +146,25 @@ class ProfessorCourseDetailSerializer(serializers.ModelSerializer):
             return None
         would_again = reviews.filter(would_take_again=True).count()
         return round(would_again / total * 100)
+
+    def get_reviews(self, obj):
+        return ReviewSerializer(self._reviews(obj).order_by('-created_at'), many=True).data
+
+
+class ProfessorCourseCreateSerializer(serializers.ModelSerializer):
+    """Lets a user claim that a professor teaches a course. Always starts unconfirmed."""
+
+    class Meta:
+        model = ProfessorCourse
+        fields = ('id', 'professor', 'course', 'confirmed')
+        read_only_fields = ('id', 'confirmed')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=ProfessorCourse.objects.all(),
+                fields=('professor', 'course'),
+                message='This professor is already listed for this course.',
+            )
+        ]
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):

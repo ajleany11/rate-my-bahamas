@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import AddProfessorModal from '../components/AddProfessorModal'
 import WriteReviewModal from '../components/WriteReviewModal'
 import { getCourseDetail, getSimilarCourses } from '../api/courses'
 import { isAuthenticated } from '../api/auth'
@@ -12,6 +13,7 @@ function CourseDetail() {
   const [error, setError] = useState(null)
   const [similarCourses, setSimilarCourses] = useState([])
   const [reviewTarget, setReviewTarget] = useState(null)
+  const [showAddProfessor, setShowAddProfessor] = useState(false)
 
   useEffect(() => {
     setCourse(null)
@@ -35,6 +37,19 @@ function CourseDetail() {
 
   function handleReviewSubmitted() {
     setReviewTarget(null)
+    getCourseDetail(code).then(setCourse)
+  }
+
+  async function handleAddProfessorClick() {
+    if (!(await isAuthenticated())) {
+      navigate('/login')
+      return
+    }
+    setShowAddProfessor(true)
+  }
+
+  function handleProfessorAdded() {
+    setShowAddProfessor(false)
     getCourseDetail(code).then(setCourse)
   }
 
@@ -73,12 +88,22 @@ function CourseDetail() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <Link
-                          to={`/professors/${professorCourse.professor.slug}`}
-                          className="font-semibold text-blue-900 hover:underline"
-                        >
-                          {professorCourse.professor.name}
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to={`/professors/${professorCourse.professor.slug}`}
+                            className="font-semibold text-blue-900 hover:underline"
+                          >
+                            {professorCourse.professor.name}
+                          </Link>
+                          {!professorCourse.confirmed && (
+                            <span
+                              title="Added by a user — not yet confirmed by our team"
+                              className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5"
+                            >
+                              Unconfirmed
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-slate-400">{professorCourse.professor.department}</p>
                       </div>
                       {professorCourse.average_rating !== null && (
@@ -101,10 +126,10 @@ function CourseDetail() {
                             would take again
                           </span>
                         )}
-                        <span>
+                        <Link to={`/professor-course/${professorCourse.id}`} className="hover:underline">
                           {professorCourse.review_count}{' '}
                           {professorCourse.review_count === 1 ? 'review' : 'reviews'}
-                        </span>
+                        </Link>
                       </div>
                       <button
                         type="button"
@@ -118,6 +143,14 @@ function CourseDetail() {
                 ))}
               </div>
             )}
+
+            <button
+              type="button"
+              onClick={handleAddProfessorClick}
+              className="mt-4 text-sm font-semibold text-blue-900 hover:underline"
+            >
+              Don&apos;t see your professor? Add one
+            </button>
           </div>
         )}
 
@@ -148,6 +181,15 @@ function CourseDetail() {
           course={course}
           onClose={() => setReviewTarget(null)}
           onSubmitted={handleReviewSubmitted}
+        />
+      )}
+
+      {showAddProfessor && course && (
+        <AddProfessorModal
+          course={course}
+          excludeProfessorIds={course.professors.map((pc) => pc.professor.id)}
+          onClose={() => setShowAddProfessor(false)}
+          onAdded={handleProfessorAdded}
         />
       )}
     </div>

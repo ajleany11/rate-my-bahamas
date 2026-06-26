@@ -3,6 +3,10 @@ import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { getProfessorDetail } from '../api/professors'
 
+function formatDate(isoString) {
+  return new Date(isoString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
 function initials(name) {
   return name
     .split(' ')
@@ -126,14 +130,25 @@ function ProfessorDetail() {
 
                 <div className="mt-4 space-y-3">
                   {visibleCourses.map((courseTaught) => (
-                    <Link
+                    <div
                       key={courseTaught.id}
-                      to={`/courses/${courseTaught.course.code}`}
-                      className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
+                      className="bg-white rounded-xl border border-slate-100 shadow-sm p-4"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="font-semibold text-blue-900">{courseTaught.course.code}</p>
+                          <div className="flex items-center gap-2">
+                            <Link to={`/courses/${courseTaught.course.code}`} className="font-semibold text-blue-900 hover:underline">
+                              {courseTaught.course.code}
+                            </Link>
+                            {!courseTaught.confirmed && (
+                              <span
+                                title="Added by a user — not yet confirmed by our team"
+                                className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5"
+                              >
+                                Unconfirmed
+                              </span>
+                            )}
+                          </div>
                           <p className="text-slate-700">{courseTaught.course.name}</p>
                         </div>
                         {courseTaught.average_rating !== null && (
@@ -154,12 +169,39 @@ function ProfessorDetail() {
                             would take again
                           </span>
                         )}
-                        <span>
+                        <Link to={`/professor-course/${courseTaught.id}`} className="hover:underline">
                           {courseTaught.review_count}{' '}
                           {courseTaught.review_count === 1 ? 'review' : 'reviews'}
-                        </span>
+                        </Link>
                       </div>
-                    </Link>
+
+                      {courseTaught.reviews.length > 0 && (
+                        <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
+                          {courseTaught.reviews.map((review) => (
+                            <div key={review.id} className="bg-slate-50 rounded-lg p-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-center gap-3 text-sm">
+                                  <span>
+                                    <span className="font-bold text-blue-900">{review.rating}</span>
+                                    <span className="text-slate-400">/5 quality</span>
+                                  </span>
+                                  <span>
+                                    <span className="font-bold text-blue-900">{review.difficulty}</span>
+                                    <span className="text-slate-400">/5 difficulty</span>
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-400 shrink-0">{formatDate(review.created_at)}</p>
+                              </div>
+                              <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
+                                <span>{review.would_take_again ? 'Would take again' : 'Would not take again'}</span>
+                                <span>{review.uses_textbook ? 'Used a textbook' : 'No textbook used'}</span>
+                              </div>
+                              {review.comment && <p className="mt-2 text-sm text-slate-700">{review.comment}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </>
