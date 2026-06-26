@@ -36,6 +36,25 @@ function CourseDetail() {
             <p className="mt-2 text-slate-700">
               {course.description || 'No description available yet.'}
             </p>
+
+            <h2 className="mt-8 text-sm font-semibold text-slate-500 uppercase tracking-wide">
+              Professors
+            </h2>
+            {course.professors.length === 0 ? (
+              <p className="mt-2 text-slate-500">No professors listed for this course yet.</p>
+            ) : (
+              <div className="mt-3 space-y-3">
+                {course.professors.map((professor) => (
+                  <div
+                    key={professor.id}
+                    className="bg-slate-50 rounded-xl border border-slate-100 p-4"
+                  >
+                    <p className="font-semibold text-blue-900">{professor.name}</p>
+                    <p className="text-sm text-slate-400">{professor.department}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </section>
