@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import LoginPrompt from '../components/LoginPrompt'
+import { useAuthStatus } from '../hooks/useAuthStatus'
 import { search } from '../api/search'
 
 const TABS = [
@@ -16,6 +18,7 @@ const FILTERABLE_TABS = new Set(['courses', 'professors'])
 function SearchResults() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
+  const loggedIn = useAuthStatus()
 
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
@@ -137,7 +140,9 @@ function SearchResults() {
                 ))}
 
               {activeTab === 'professors' &&
-                (visibleItems.length === 0 ? (
+                (loggedIn === false ? (
+                  <LoginPrompt message="Log in to see professors." />
+                ) : visibleItems.length === 0 ? (
                   <p className="text-slate-500">No professors found.</p>
                 ) : (
                   visibleItems.map((professor) => (

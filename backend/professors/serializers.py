@@ -1,4 +1,4 @@
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Prefetch, Q
 from django.utils.text import slugify
 from rest_framework import serializers
 
@@ -79,6 +79,24 @@ def overall_stats_for_professor(courses_taught):
         'would_take_again_percent': round(sum(c['would_take_again_percent'] for c in rated) / len(rated)),
         'review_count': review_count,
     }
+
+
+def top_rated_professors(limit=5):
+    """The `limit` professors with the highest overall rating, highest review count breaking ties."""
+    professors = Professor.objects.prefetch_related(
+        Prefetch('professor_courses', queryset=ProfessorCourse.objects.select_related('course')),
+        'reviews',
+    )
+
+    ranked = []
+    for professor in professors:
+        overall = overall_stats_for_professor(courses_taught_for_professor(professor))
+        if overall['average_rating'] is None:
+            continue
+        ranked.append((professor, overall))
+
+    ranked.sort(key=lambda pair: (pair[1]['average_rating'], pair[1]['review_count']), reverse=True)
+    return ranked[:limit]
 
 
 class CourseSerializer(serializers.ModelSerializer):

@@ -24,6 +24,7 @@ from professors.views import (
     ProfessorDetailView,
     ProfessorListView,
     ReviewCreateView,
+    TopRatedProfessorsView,
 )
 
 urlpatterns = [
@@ -36,6 +37,7 @@ urlpatterns = [
     path('api/search/', include('search.urls')),
     path('api/professor-course/', ProfessorCourseCreateView.as_view(), name='professor-course-create'),
     path('api/professor-course/<int:pk>/', ProfessorCourseDetailView.as_view(), name='professor-course-detail'),
+    path('api/professors/top-rated/', TopRatedProfessorsView.as_view(), name='professors-top-rated'),
     path('api/professors/', ProfessorListView.as_view(), name='professor-list'),
     path('api/professors/<slug:slug>/', ProfessorDetailView.as_view(), name='professor-detail'),
     path('api/reviews/', ReviewCreateView.as_view(), name='review-create'),

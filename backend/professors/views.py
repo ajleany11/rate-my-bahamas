@@ -1,6 +1,8 @@
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Course, Professor, ProfessorCourse
 from .serializers import (
@@ -11,7 +13,10 @@ from .serializers import (
     ProfessorDetailSerializer,
     ProfessorSerializer,
     ReviewCreateSerializer,
+    top_rated_professors,
 )
+
+TOP_RATED_PROFESSORS_LIMIT = 5
 
 SIMILAR_COURSES_LIMIT = 6
 
@@ -49,6 +54,26 @@ class ProfessorListView(generics.ListAPIView):
     queryset = Professor.objects.all().order_by('name')
     serializer_class = ProfessorSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class TopRatedProfessorsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        results = [
+            {
+                'id': professor.id,
+                'name': professor.name,
+                'department': professor.department,
+                'slug': professor.slug,
+                'photo_url': professor.photo_url,
+                'overall_average_rating': overall['average_rating'],
+                'overall_would_take_again_percent': overall['would_take_again_percent'],
+                'overall_review_count': overall['review_count'],
+            }
+            for professor, overall in top_rated_professors(TOP_RATED_PROFESSORS_LIMIT)
+        ]
+        return Response(results)
 
 
 class ProfessorDetailView(generics.RetrieveAPIView):

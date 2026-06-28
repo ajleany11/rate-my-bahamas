@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import LoginPrompt from '../components/LoginPrompt'
+import { useAuthStatus } from '../hooks/useAuthStatus'
 import { getProfessorCourseDetail } from '../api/professors'
 
 function formatDate(isoString) {
@@ -9,26 +11,30 @@ function formatDate(isoString) {
 
 function ProfessorCourseReviews() {
   const { id } = useParams()
+  const loggedIn = useAuthStatus()
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (!loggedIn) return
     setData(null)
     setError(null)
     getProfessorCourseDetail(id)
       .then(setData)
       .catch(() => setError('Failed to load reviews.'))
-  }, [id])
+  }, [id, loggedIn])
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
 
       <section className="max-w-3xl mx-auto px-4 py-12">
-        {error && <p className="text-slate-500">{error}</p>}
-        {!error && !data && <p className="text-slate-500">Loading...</p>}
+        {loggedIn === false && <LoginPrompt message="Log in to see these reviews." />}
 
-        {data && (
+        {loggedIn && error && <p className="text-slate-500">{error}</p>}
+        {loggedIn && !error && !data && <p className="text-slate-500">Loading...</p>}
+
+        {loggedIn && data && (
           <>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
               <div className="flex items-start justify-between gap-4">
