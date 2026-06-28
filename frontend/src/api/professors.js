@@ -34,11 +34,14 @@ export async function getProfessorCourseDetail(id) {
   return res.json()
 }
 
-export async function addProfessorToCourse({ professor, course }) {
+export async function addProfessorToCourse({ professor, professorName, course }) {
   const res = await authFetch('/api/professor-course/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ professor, course }),
+    body: JSON.stringify({
+      course,
+      ...(professorName ? { professor_name: professorName } : { professor }),
+    }),
   })
   const data = await res.json()
   if (!res.ok) {

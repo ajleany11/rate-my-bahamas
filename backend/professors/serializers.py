@@ -1,8 +1,24 @@
 from django.db.models import Avg, Count, Q
+from django.utils.text import slugify
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Course, Professor, ProfessorCourse, Review
+
+
+def get_or_create_professor_by_name(name, department):
+    """Find a professor by name (case-insensitive), or create a new one with a unique slug."""
+    name = name.strip()
+    existing = Professor.objects.filter(name__iexact=name).first()
+    if existing:
+        return existing
+
+    base_slug = slugify(name) or 'professor'
+    slug = base_slug
+    counter = 2
+    while Professor.objects.filter(slug=slug).exists():
+        slug = f'{base_slug}-{counter}'
+        counter += 1
+    return Professor.objects.create(name=name, department=department, slug=slug)
 
 
 def professor_courses_with_stats(course):
@@ -152,19 +168,46 @@ class ProfessorCourseDetailSerializer(serializers.ModelSerializer):
 
 
 class ProfessorCourseCreateSerializer(serializers.ModelSerializer):
-    """Lets a user claim that a professor teaches a course. Always starts unconfirmed."""
+    """Lets a user claim that a professor teaches a course. Always starts unconfirmed.
+
+    Accepts either an existing `professor` id, or a `professor_name` to look up
+    (case-insensitively) or create a brand new Professor on the fly.
+    """
+
+    professor = serializers.PrimaryKeyRelatedField(queryset=Professor.objects.all(), required=False)
+    professor_name = serializers.CharField(write_only=True, required=False, allow_blank=False)
 
     class Meta:
         model = ProfessorCourse
-        fields = ('id', 'professor', 'course', 'confirmed')
+        fields = ('id', 'professor', 'professor_name', 'course', 'confirmed')
         read_only_fields = ('id', 'confirmed')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=ProfessorCourse.objects.all(),
-                fields=('professor', 'course'),
-                message='This professor is already listed for this course.',
+        # Disable DRF's auto unique_together validator: it force-requires `professor`,
+        # which breaks the professor_name-only path. Duplicates are checked in create() instead.
+        validators = []
+
+    def validate(self, attrs):
+        professor = attrs.get('professor')
+        professor_name = attrs.get('professor_name')
+        if not professor and not professor_name:
+            raise serializers.ValidationError("Select a professor or type a new professor's name.")
+        if professor and professor_name:
+            raise serializers.ValidationError('Choose an existing professor or type a new name, not both.')
+        return attrs
+
+    def create(self, validated_data):
+        professor_name = validated_data.pop('professor_name', None)
+        course = validated_data['course']
+
+        professor = validated_data.get('professor')
+        if professor_name:
+            professor = get_or_create_professor_by_name(professor_name, course.department)
+
+        if ProfessorCourse.objects.filter(professor=professor, course=course).exists():
+            raise serializers.ValidationError(
+                {'non_field_errors': ['This professor is already listed for this course.']}
             )
-        ]
+
+        return ProfessorCourse.objects.create(professor=professor, course=course)
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):

@@ -4,6 +4,7 @@ import { getAllProfessors, addProfessorToCourse } from '../api/professors'
 function AddProfessorModal({ course, excludeProfessorIds, onClose, onAdded }) {
   const [professors, setProfessors] = useState([])
   const [selectedId, setSelectedId] = useState('')
+  const [newName, setNewName] = useState('')
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -15,17 +16,32 @@ function AddProfessorModal({ course, excludeProfessorIds, onClose, onAdded }) {
 
   const options = professors.filter((professor) => !excludeProfessorIds.includes(professor.id))
 
+  function handleSelectChange(event) {
+    setSelectedId(event.target.value)
+    if (event.target.value) setNewName('')
+  }
+
+  function handleNameChange(event) {
+    setNewName(event.target.value)
+    if (event.target.value) setSelectedId('')
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
-    if (!selectedId) {
-      setError('Please select a professor.')
+    const trimmedName = newName.trim()
+    if (!selectedId && !trimmedName) {
+      setError('Select a professor or type a new name.')
       return
     }
 
     setSubmitting(true)
     setError(null)
     try {
-      await addProfessorToCourse({ professor: Number(selectedId), course: course.id })
+      if (trimmedName) {
+        await addProfessorToCourse({ professorName: trimmedName, course: course.id })
+      } else {
+        await addProfessorToCourse({ professor: Number(selectedId), course: course.id })
+      }
       onAdded()
     } catch (err) {
       setError(err.message)
@@ -65,8 +81,9 @@ function AddProfessorModal({ course, excludeProfessorIds, onClose, onAdded }) {
             <select
               id="professor-select"
               value={selectedId}
-              onChange={(event) => setSelectedId(event.target.value)}
-              className="mt-2 w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900"
+              onChange={handleSelectChange}
+              disabled={!!newName.trim()}
+              className="mt-2 w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 disabled:bg-slate-100 disabled:text-slate-400"
             >
               <option value="">Select a professor...</option>
               {options.map((professor) => (
@@ -75,6 +92,27 @@ function AddProfessorModal({ course, excludeProfessorIds, onClose, onAdded }) {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs text-slate-400">OR</span>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <div>
+            <label htmlFor="professor-name" className="text-sm font-semibold text-slate-700">
+              Don&apos;t see them? Type their name
+            </label>
+            <input
+              id="professor-name"
+              type="text"
+              value={newName}
+              onChange={handleNameChange}
+              disabled={!!selectedId}
+              placeholder="e.g. Jane Doe"
+              className="mt-2 w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900 disabled:bg-slate-100 disabled:text-slate-400"
+            />
           </div>
 
           <p className="text-xs text-slate-400">
