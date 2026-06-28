@@ -16,7 +16,7 @@ function Dashboard() {
           You&apos;re signed in
         </h1>
         <p className="text-slate-500 text-sm mb-6">
-          Welcome to Rate My Bahamas.
+          Welcome to KnowBeforeYouGo.
         </p>
         <button
           type="button"

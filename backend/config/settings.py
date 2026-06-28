@@ -87,7 +87,7 @@ REST_FRAMEWORK = {
 # Swap EMAIL_BACKEND to 'django.core.mail.backends.smtp.EmailBackend' and set the
 # EMAIL_HOST* settings below once real SMTP credentials are available.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'Rate My Bahamas <noreply@ratemybahamas.com>'
+DEFAULT_FROM_EMAIL = 'KnowBeforeYouGo <noreply@knowbeforeyougobahamas.com>'
 
 ROOT_URLCONF = 'config.urls'
 

@@ -9,19 +9,19 @@ from .models import VerificationCode
 CODE_LIFETIME_MINUTES = 15
 
 PURPOSE_SUBJECTS = {
-    VerificationCode.SIGNUP: 'Verify your Rate My Bahamas account',
-    VerificationCode.PASSWORD_RESET: 'Reset your Rate My Bahamas password',
+    VerificationCode.SIGNUP: 'Verify your KnowBeforeYouGo account',
+    VerificationCode.PASSWORD_RESET: 'Reset your KnowBeforeYouGo password',
 }
 
 PURPOSE_MESSAGES = {
     VerificationCode.SIGNUP: (
-        'Welcome to Rate My Bahamas!\n\n'
+        'Welcome to KnowBeforeYouGo!\n\n'
         'Your verification code is: {code}\n\n'
         'Enter this code to finish creating your account. '
         'It expires in {minutes} minutes.'
     ),
     VerificationCode.PASSWORD_RESET: (
-        'We received a request to reset your Rate My Bahamas password.\n\n'
+        'We received a request to reset your KnowBeforeYouGo password.\n\n'
         'Your verification code is: {code}\n\n'
         'Enter this code to continue resetting your password. '
         'It expires in {minutes} minutes. '

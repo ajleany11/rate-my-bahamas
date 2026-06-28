@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
+import Logo from './Logo'
 import SearchBar from './SearchBar'
 
 function Navbar({ showSearch = true }) {
@@ -16,14 +17,9 @@ function Navbar({ showSearch = true }) {
     <nav className="bg-white border-b border-slate-100">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div
-            className="w-9 h-9 bg-blue-900 text-white flex items-center justify-center font-serif text-sm font-bold"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%)' }}
-          >
-            UB
-          </div>
+          <Logo />
           <span className="font-serif font-bold text-blue-900 text-lg leading-none whitespace-nowrap">
-            RATE MY <span className="text-amber-500">BAHAMAS</span>
+            KNOW BEFORE <span className="text-amber-500">YOU GO</span>
           </span>
         </Link>
 

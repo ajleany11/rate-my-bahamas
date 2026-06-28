@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import Logo from '../components/Logo'
 import { confirmPasswordReset } from '../api/auth'
 
 function ResetPassword() {
@@ -40,11 +41,11 @@ function ResetPassword() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-xl bg-blue-900 text-white flex items-center justify-center font-serif text-xl font-bold mb-4 shadow-sm">
-            UB
+          <div className="mb-4">
+            <Logo size="lg" />
           </div>
           <h1 className="text-2xl font-serif font-bold text-blue-900 text-center">
-            RATE MY <span className="text-amber-500">BAHAMAS</span>
+            KNOW BEFORE <span className="text-amber-500">YOU GO</span>
           </h1>
           <p className="text-slate-500 text-sm mt-2 text-center">
             Choose a new password for your account

@@ -41,7 +41,7 @@ class CheckoutSessionView(APIView):
             line_items=[{
                 'price_data': {
                     'currency': 'usd',
-                    'product_data': {'name': f'Rate My Bahamas access — {semester.name}'},
+                    'product_data': {'name': f'KnowBeforeYouGo access — {semester.name}'},
                     'unit_amount': semester.price_cents,
                 },
                 'quantity': 1,
