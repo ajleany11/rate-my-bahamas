@@ -83,11 +83,23 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Verification code emails print to this console for now (no real email is sent).
-# Swap EMAIL_BACKEND to 'django.core.mail.backends.smtp.EmailBackend' and set the
-# EMAIL_HOST* settings below once real SMTP credentials are available.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'KnowBeforeYouGo <noreply@knowbeforeyougobahamas.com>'
+# Verification code emails. Sent via Resend's SMTP relay once RESEND_API_KEY is set
+# (e.g. in Railway's env vars); otherwise falls back to printing to the console,
+# which is what local dev has always done.
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+if RESEND_API_KEY:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.resend.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = 'resend'
+    EMAIL_HOST_PASSWORD = RESEND_API_KEY
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL', 'KnowBeforeYouGo <noreply@knowbeforeyougobahamas.com>'
+)
 
 ROOT_URLCONF = 'config.urls'
 
