@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import AccessGate from '../components/AccessGate'
 import AddProfessorModal from '../components/AddProfessorModal'
-import LoginPrompt from '../components/LoginPrompt'
 import WriteReviewModal from '../components/WriteReviewModal'
-import { useAuthStatus } from '../hooks/useAuthStatus'
+import { useAccessStatus } from '../hooks/useAccessStatus'
 import { getCourseDetail, getSimilarCourses } from '../api/courses'
+import { hasActiveAccess } from '../api/billing'
 import { isAuthenticated } from '../api/auth'
 
 function CourseDetail() {
   const { code } = useParams()
   const navigate = useNavigate()
-  const loggedIn = useAuthStatus()
+  const { status: accessStatus, semester } = useAccessStatus()
   const [course, setCourse] = useState(null)
   const [error, setError] = useState(null)
   const [similarCourses, setSimilarCourses] = useState([])
@@ -35,6 +36,10 @@ function CourseDetail() {
       navigate('/login')
       return
     }
+    if (!(await hasActiveAccess())) {
+      navigate('/subscribe')
+      return
+    }
     setReviewTarget(professor)
   }
 
@@ -46,6 +51,10 @@ function CourseDetail() {
   async function handleAddProfessorClick() {
     if (!(await isAuthenticated())) {
       navigate('/login')
+      return
+    }
+    if (!(await hasActiveAccess())) {
+      navigate('/subscribe')
       return
     }
     setShowAddProfessor(true)
@@ -80,9 +89,13 @@ function CourseDetail() {
             <h2 className="mt-8 text-sm font-semibold text-slate-500 uppercase tracking-wide">
               Professors
             </h2>
-            {loggedIn === false ? (
+            {accessStatus !== 'active' ? (
               <div className="mt-3">
-                <LoginPrompt message="Log in to see professors and reviews for this course." />
+                <AccessGate
+                  status={accessStatus}
+                  semester={semester}
+                  message="Log in and pay to see professors and reviews for this course."
+                />
               </div>
             ) : course.professors.length === 0 ? (
               <p className="mt-2 text-slate-500">No professors listed for this course yet.</p>
@@ -151,7 +164,7 @@ function CourseDetail() {
               </div>
             )}
 
-            {loggedIn && (
+            {accessStatus === 'active' && (
               <button
                 type="button"
                 onClick={handleAddProfessorClick}

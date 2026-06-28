@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import SearchBar from '../components/SearchBar'
-import LoginPrompt from '../components/LoginPrompt'
+import AccessGate from '../components/AccessGate'
 import PillDropdown from '../components/PillDropdown'
-import { useAuthStatus } from '../hooks/useAuthStatus'
+import { useAccessStatus } from '../hooks/useAccessStatus'
 import { getTopRatedProfessors } from '../api/professors'
 import { getAllSchools, getColleges } from '../api/colleges'
 
@@ -19,16 +19,16 @@ function initials(name) {
 }
 
 function Home() {
-  const loggedIn = useAuthStatus()
+  const { status: accessStatus, semester } = useAccessStatus()
   const [topProfessors, setTopProfessors] = useState([])
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!loggedIn) return
+    if (accessStatus !== 'active') return
     getTopRatedProfessors()
       .then(setTopProfessors)
       .catch(() => setError('Failed to load top rated professors.'))
-  }, [loggedIn])
+  }, [accessStatus])
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -77,19 +77,23 @@ function Home() {
           Top Rated Professors
         </h2>
 
-        {loggedIn === false && (
+        {accessStatus !== 'active' && (
           <div className="mt-4">
-            <LoginPrompt message="Log in to see the top rated professors." />
+            <AccessGate
+              status={accessStatus}
+              semester={semester}
+              message="Log in and pay to see the top rated professors."
+            />
           </div>
         )}
 
-        {loggedIn && error && <p className="mt-4 text-slate-500 text-center">{error}</p>}
+        {accessStatus === 'active' && error && <p className="mt-4 text-slate-500 text-center">{error}</p>}
 
-        {loggedIn && !error && topProfessors.length === 0 && (
+        {accessStatus === 'active' && !error && topProfessors.length === 0 && (
           <p className="mt-4 text-slate-500 text-center">No rated professors yet.</p>
         )}
 
-        {loggedIn && topProfessors.length > 0 && (
+        {accessStatus === 'active' && topProfessors.length > 0 && (
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {topProfessors.map((professor) => (
               <Link

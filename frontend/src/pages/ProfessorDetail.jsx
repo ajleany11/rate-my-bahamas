@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import LoginPrompt from '../components/LoginPrompt'
-import { useAuthStatus } from '../hooks/useAuthStatus'
+import AccessGate from '../components/AccessGate'
+import { useAccessStatus } from '../hooks/useAccessStatus'
 import { getProfessorDetail } from '../api/professors'
 
 function formatDate(isoString) {
@@ -21,20 +21,20 @@ function initials(name) {
 
 function ProfessorDetail() {
   const { slug } = useParams()
-  const loggedIn = useAuthStatus()
+  const { status: accessStatus, semester } = useAccessStatus()
   const [professor, setProfessor] = useState(null)
   const [error, setError] = useState(null)
   const [activeDepartment, setActiveDepartment] = useState('all')
 
   useEffect(() => {
-    if (!loggedIn) return
+    if (accessStatus !== 'active') return
     setProfessor(null)
     setError(null)
     setActiveDepartment('all')
     getProfessorDetail(slug)
       .then(setProfessor)
       .catch(() => setError('Failed to load this professor.'))
-  }, [slug, loggedIn])
+  }, [slug, accessStatus])
 
   const departmentTabs = useMemo(() => {
     if (!professor) return []
@@ -52,14 +52,18 @@ function ProfessorDetail() {
       <Navbar />
 
       <section className="max-w-3xl mx-auto px-4 py-12">
-        {loggedIn === false && (
-          <LoginPrompt message="Log in to see this professor's reviews." />
+        {accessStatus !== 'active' && (
+          <AccessGate
+            status={accessStatus}
+            semester={semester}
+            message="Log in and pay to see this professor's reviews."
+          />
         )}
 
-        {loggedIn && error && <p className="text-slate-500">{error}</p>}
-        {loggedIn && !error && !professor && <p className="text-slate-500">Loading...</p>}
+        {accessStatus === 'active' && error && <p className="text-slate-500">{error}</p>}
+        {accessStatus === 'active' && !error && !professor && <p className="text-slate-500">Loading...</p>}
 
-        {loggedIn && professor && (
+        {accessStatus === 'active' && professor && (
           <>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
               <div className="flex items-start justify-between gap-4">

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import LoginPrompt from '../components/LoginPrompt'
-import { useAuthStatus } from '../hooks/useAuthStatus'
+import AccessGate from '../components/AccessGate'
+import { useAccessStatus } from '../hooks/useAccessStatus'
 import { search } from '../api/search'
 
 const TABS = [
@@ -18,7 +18,7 @@ const FILTERABLE_TABS = new Set(['courses', 'professors'])
 function SearchResults() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
-  const loggedIn = useAuthStatus()
+  const { status: accessStatus, semester } = useAccessStatus()
 
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
@@ -140,8 +140,8 @@ function SearchResults() {
                 ))}
 
               {activeTab === 'professors' &&
-                (loggedIn === false ? (
-                  <LoginPrompt message="Log in to see professors." />
+                (accessStatus !== 'active' ? (
+                  <AccessGate status={accessStatus} semester={semester} message="Log in and pay to see professors." />
                 ) : visibleItems.length === 0 ? (
                   <p className="text-slate-500">No professors found.</p>
                 ) : (

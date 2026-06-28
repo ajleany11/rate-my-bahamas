@@ -13,6 +13,8 @@ import ProfessorCourseReviews from './pages/ProfessorCourseReviews'
 import ProfessorDetail from './pages/ProfessorDetail'
 import SchoolDetail from './pages/SchoolDetail'
 import SearchResults from './pages/SearchResults'
+import Subscribe from './pages/Subscribe'
+import SubscribeSuccess from './pages/SubscribeSuccess'
 import RequireAuth from './components/RequireAuth'
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
         <Route path="/professors/:slug" element={<ProfessorDetail />} />
         <Route path="/professor-course/:id" element={<ProfessorCourseReviews />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/subscribe" element={<Subscribe />} />
+        <Route path="/subscribe/success" element={<SubscribeSuccess />} />
         <Route
           path="/dashboard"
           element={
