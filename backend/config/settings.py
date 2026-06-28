@@ -172,6 +172,14 @@ STORAGES = {
     },
 }
 
+# Built React app (`cd frontend && npm run build` outputs straight here — see
+# vite.config.js). Whitenoise serves its assets/ directory etc. from the site root,
+# separately from STATIC_ROOT above. Guarded so local `runserver` works fine
+# whether or not the frontend has been built.
+FRONTEND_DIST_DIR = BASE_DIR / 'frontend_dist'
+if FRONTEND_DIST_DIR.exists():
+    WHITENOISE_ROOT = FRONTEND_DIST_DIR
+
 # Stripe (billing). Keys are blank until set in .env — checkout/webhook
 # views fail gracefully with a clear error until they're configured.
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')

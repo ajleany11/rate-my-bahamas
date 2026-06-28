@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = ''
 
 export async function search(query) {
   const res = await fetch(`${API_BASE_URL}/api/search/?q=${encodeURIComponent(query)}`)

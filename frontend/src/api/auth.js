@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8000'
+// Relative: the Vite dev proxy forwards /api in dev, and production serves
+// frontend + backend from the same origin (see vite.config.js).
+const API_BASE_URL = ''
 
 function extractErrorMessage(data) {
   if (!data || typeof data !== 'object') return 'Something went wrong. Please try again.'

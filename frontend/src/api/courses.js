@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = ''
 
 export async function getCourseDetail(code) {
   const res = await fetch(`${API_BASE_URL}/api/courses/${code}/`)
