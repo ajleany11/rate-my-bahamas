@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
-import SchoolsDropdown from './SchoolsDropdown'
 import SearchBar from './SearchBar'
 
 function Navbar({ showSearch = true }) {
@@ -27,10 +26,6 @@ function Navbar({ showSearch = true }) {
             RATE MY <span className="text-amber-500">BAHAMAS</span>
           </span>
         </Link>
-
-        <div className="hidden sm:block">
-          <SchoolsDropdown />
-        </div>
 
         {showSearch && (
           <div className="flex-1 max-w-md mx-auto hidden sm:block">
@@ -87,7 +82,6 @@ function Navbar({ showSearch = true }) {
       {isMenuOpen && (
         <div className="sm:hidden border-t border-slate-100 px-4 py-3 space-y-3">
           {showSearch && <SearchBar />}
-          <SchoolsDropdown stacked />
           <Link
             to="/dashboard"
             onClick={() => setIsMenuOpen(false)}

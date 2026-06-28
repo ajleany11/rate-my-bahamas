@@ -7,11 +7,11 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import CourseDetail from './pages/CourseDetail'
 import Dashboard from './pages/Dashboard'
-import DepartmentDetail from './pages/DepartmentDetail'
+import CollegeDetail from './pages/CollegeDetail'
+import Colleges from './pages/Colleges'
 import ProfessorCourseReviews from './pages/ProfessorCourseReviews'
 import ProfessorDetail from './pages/ProfessorDetail'
 import SchoolDetail from './pages/SchoolDetail'
-import Schools from './pages/Schools'
 import SearchResults from './pages/SearchResults'
 import RequireAuth from './components/RequireAuth'
 
@@ -26,9 +26,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/courses/:code" element={<CourseDetail />} />
-        <Route path="/schools" element={<Schools />} />
+        <Route path="/colleges" element={<Colleges />} />
+        <Route path="/colleges/:slug" element={<CollegeDetail />} />
         <Route path="/schools/:slug" element={<SchoolDetail />} />
-        <Route path="/departments/:slug" element={<DepartmentDetail />} />
         <Route path="/professors/:slug" element={<ProfessorDetail />} />
         <Route path="/professor-course/:id" element={<ProfessorCourseReviews />} />
         <Route path="/search" element={<SearchResults />} />

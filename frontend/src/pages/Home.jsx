@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import SearchBar from '../components/SearchBar'
 import LoginPrompt from '../components/LoginPrompt'
+import PillDropdown from '../components/PillDropdown'
 import { useAuthStatus } from '../hooks/useAuthStatus'
 import { getTopRatedProfessors } from '../api/professors'
+import { getAllSchools, getColleges } from '../api/colleges'
 
 function initials(name) {
   return name
@@ -44,6 +46,29 @@ function Home() {
 
         <div className="mt-8 max-w-md mx-auto bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
           <SearchBar size="lg" />
+
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <PillDropdown
+              label="Colleges"
+              loadItems={getColleges}
+              getItemKey={(college) => college.id}
+              getItemLink={(college) => `/colleges/${college.slug}`}
+              getItemLabel={(college) => college.name}
+              getItemSublabel={(college) =>
+                `${college.school_count} ${college.school_count === 1 ? 'school' : 'schools'}`
+              }
+              viewAllTo="/colleges"
+              viewAllLabel="View all colleges"
+            />
+            <PillDropdown
+              label="Schools"
+              loadItems={getAllSchools}
+              getItemKey={(school) => school.id}
+              getItemLink={(school) => `/schools/${school.slug}`}
+              getItemLabel={(school) => school.name}
+              getItemSublabel={(school) => school.college.name}
+            />
+          </div>
         </div>
       </section>
 

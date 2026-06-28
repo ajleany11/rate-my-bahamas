@@ -1,23 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { getSchoolDetail } from '../api/schools'
-
-function DepartmentIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="w-6 h-6"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-    </svg>
-  )
-}
+import { getSchoolDetail } from '../api/colleges'
 
 function SchoolDetail() {
   const { slug } = useParams()
@@ -36,32 +20,33 @@ function SchoolDetail() {
     <div className="min-h-screen bg-slate-50">
       <Navbar />
 
-      <section className="max-w-5xl mx-auto px-4 py-12">
+      <section className="max-w-3xl mx-auto px-4 py-12">
         {error && <p className="text-slate-500">{error}</p>}
-
         {!error && !school && <p className="text-slate-500">Loading...</p>}
 
         {school && (
           <>
-            <h1 className="text-3xl font-serif font-bold text-blue-900">{school.name}</h1>
+            <Link to={`/colleges/${school.college.slug}`} className="text-sm text-amber-600 hover:underline">
+              {school.college.name}
+            </Link>
+            <h1 className="mt-1 text-3xl font-serif font-bold text-blue-900">{school.name}</h1>
 
             <h2 className="mt-8 text-sm font-semibold text-slate-500 uppercase tracking-wide">
-              Departments
+              Courses ({school.courses.length})
             </h2>
-            {school.departments.length === 0 ? (
-              <p className="mt-2 text-slate-500">No departments yet.</p>
+
+            {school.courses.length === 0 ? (
+              <p className="mt-2 text-slate-500">No courses listed yet.</p>
             ) : (
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {school.departments.map((department) => (
+              <div className="mt-3 space-y-3">
+                {school.courses.map((course) => (
                   <Link
-                    key={department.id}
-                    to={`/departments/${department.slug}`}
-                    className="block bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-shadow"
+                    key={course.id}
+                    to={`/courses/${course.code}`}
+                    className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
                   >
-                    <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                      <DepartmentIcon />
-                    </div>
-                    <h3 className="mt-4 font-serif font-bold text-blue-900">{department.name}</h3>
+                    <p className="font-semibold text-blue-900">{course.code}</p>
+                    <p className="text-slate-700">{course.name}</p>
                   </Link>
                 ))}
               </div>

@@ -7,9 +7,9 @@ import { search } from '../api/search'
 
 const TABS = [
   { key: 'courses', label: 'Courses' },
-  { key: 'departments', label: 'Departments' },
-  { key: 'professors', label: 'Professors' },
   { key: 'schools', label: 'Schools' },
+  { key: 'professors', label: 'Professors' },
+  { key: 'colleges', label: 'Colleges' },
 ]
 
 // Only these tabs have a `department` string field to filter on.
@@ -123,18 +123,18 @@ function SearchResults() {
                   ))
                 ))}
 
-              {activeTab === 'departments' &&
+              {activeTab === 'schools' &&
                 (visibleItems.length === 0 ? (
-                  <p className="text-slate-500">No departments found.</p>
+                  <p className="text-slate-500">No schools found.</p>
                 ) : (
-                  visibleItems.map((department) => (
+                  visibleItems.map((school) => (
                     <Link
-                      key={department.id}
-                      to={`/departments/${department.slug}`}
+                      key={school.id}
+                      to={`/schools/${school.slug}`}
                       className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
                     >
-                      <p className="font-semibold text-blue-900">{department.name}</p>
-                      <p className="text-sm text-slate-400">{department.school.name}</p>
+                      <p className="font-semibold text-blue-900">{school.name}</p>
+                      <p className="text-sm text-slate-400">{school.college.name}</p>
                     </Link>
                   ))
                 ))}
@@ -157,20 +157,20 @@ function SearchResults() {
                   ))
                 ))}
 
-              {activeTab === 'schools' &&
+              {activeTab === 'colleges' &&
                 (visibleItems.length === 0 ? (
-                  <p className="text-slate-500">No schools found.</p>
+                  <p className="text-slate-500">No colleges found.</p>
                 ) : (
-                  visibleItems.map((school) => (
+                  visibleItems.map((college) => (
                     <Link
-                      key={school.id}
-                      to={`/schools/${school.slug}`}
+                      key={college.id}
+                      to={`/colleges/${college.slug}`}
                       className="block bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:border-blue-100"
                     >
-                      <p className="font-semibold text-blue-900">{school.name}</p>
+                      <p className="font-semibold text-blue-900">{college.name}</p>
                       <p className="text-sm text-slate-400">
-                        {school.department_count}{' '}
-                        {school.department_count === 1 ? 'department' : 'departments'}
+                        {college.school_count}{' '}
+                        {college.school_count === 1 ? 'school' : 'schools'}
                       </p>
                     </Link>
                   ))

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { getSchools } from '../api/schools'
+import { getColleges } from '../api/colleges'
 
-function SchoolIcon() {
+function CollegeIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,14 +19,14 @@ function SchoolIcon() {
   )
 }
 
-function Schools() {
-  const [schools, setSchools] = useState(null)
+function Colleges() {
+  const [colleges, setColleges] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    getSchools()
-      .then(setSchools)
-      .catch(() => setError('Failed to load schools.'))
+    getColleges()
+      .then(setColleges)
+      .catch(() => setError('Failed to load colleges.'))
   }, [])
 
   return (
@@ -34,29 +34,29 @@ function Schools() {
       <Navbar />
 
       <section className="max-w-6xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-serif font-bold text-blue-900">Schools</h1>
-        <p className="text-slate-500 mt-1">Browse departments by school.</p>
+        <h1 className="text-3xl font-serif font-bold text-blue-900">Colleges</h1>
+        <p className="text-slate-500 mt-1">Browse schools by college.</p>
 
         {error && <p className="mt-6 text-slate-500">{error}</p>}
-        {!error && !schools && <p className="mt-6 text-slate-500">Loading...</p>}
-        {!error && schools && schools.length === 0 && (
-          <p className="mt-6 text-slate-500">No schools yet.</p>
+        {!error && !colleges && <p className="mt-6 text-slate-500">Loading...</p>}
+        {!error && colleges && colleges.length === 0 && (
+          <p className="mt-6 text-slate-500">No colleges yet.</p>
         )}
 
-        {!error && schools && schools.length > 0 && (
+        {!error && colleges && colleges.length > 0 && (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {schools.map((school) => (
+            {colleges.map((college) => (
               <Link
-                key={school.id}
-                to={`/schools/${school.slug}`}
+                key={college.id}
+                to={`/colleges/${college.slug}`}
                 className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md hover:border-blue-100 transition-shadow"
               >
                 <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-900 flex items-center justify-center">
-                  <SchoolIcon />
+                  <CollegeIcon />
                 </div>
-                <h2 className="mt-4 font-serif font-bold text-blue-900">{school.name}</h2>
+                <h2 className="mt-4 font-serif font-bold text-blue-900">{college.name}</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  {school.department_count} {school.department_count === 1 ? 'department' : 'departments'}
+                  {college.school_count} {college.school_count === 1 ? 'school' : 'schools'}
                 </p>
               </Link>
             ))}
@@ -67,4 +67,4 @@ function Schools() {
   )
 }
 
-export default Schools
+export default Colleges

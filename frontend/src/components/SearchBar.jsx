@@ -5,8 +5,8 @@ import { getAutocompleteSuggestions } from '../api/search'
 const TYPE_LABELS = {
   course: 'Course',
   professor: 'Professor',
-  department: 'Department',
   school: 'School',
+  college: 'College',
 }
 
 function SearchBar({ placeholder = 'Search courses, professors, schools...', className = '', size = 'sm' }) {
