@@ -40,6 +40,15 @@ _railway_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
 if _railway_domain:
     ALLOWED_HOSTS.append(_railway_domain)
 
+# Django checks the Origin header on unsafe requests (e.g. admin login POSTs)
+# against this list. Without it, HTTPS requests through Railway's proxy fail
+# CSRF verification even with a valid token.
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()
+]
+if _railway_domain:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{_railway_domain}')
+
 
 # Application definition
 
