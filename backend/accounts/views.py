@@ -1,3 +1,4 @@
+from django.core.mail import BadHeaderError
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
@@ -17,7 +18,13 @@ class RegisterView(generics.GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        try:
+            serializer.save()
+        except Exception:
+            return Response(
+                {'detail': 'Account created but we could not send the verification email. Please try again shortly.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         return Response({'detail': 'Verification code sent to your email.'}, status=status.HTTP_201_CREATED)
 
 
