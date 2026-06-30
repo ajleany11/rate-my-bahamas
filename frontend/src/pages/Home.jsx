@@ -36,9 +36,9 @@ function Home() {
 
       <section className="px-4 py-20 bg-gradient-to-b from-blue-50 to-slate-50 text-center">
         <h1 className="text-4xl sm:text-5xl font-serif font-bold text-blue-900 leading-tight">
-          Rate Professors.
+          Know Before
           <br />
-          <span className="text-amber-500">Help Students.</span>
+          <span className="text-amber-500">You Go.</span>
         </h1>
         <p className="text-slate-500 mt-4 max-w-md mx-auto">
           Real reviews from real students at The University of The Bahamas.
