@@ -24,10 +24,6 @@ class RegisterSerializer(serializers.Serializer):
     password2 = serializers.CharField(write_only=True, min_length=8)
 
     def validate_ub_email(self, value):
-        if not UB_EMAIL_REGEX.match(value):
-            raise serializers.ValidationError(
-                'Please use your UB email address (must end in @ub.edu.bs).'
-            )
         if User.objects.filter(ub_email__iexact=value, is_active=True).exists():
             raise serializers.ValidationError('An account with this email already exists.')
         return value

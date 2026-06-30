@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
 import { register } from '../api/auth'
 
-const UB_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@ub\.edu\.bs$/
-
 function Signup() {
   const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
@@ -12,19 +10,12 @@ function Signup() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [emailTouched, setEmailTouched] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-
-  const emailValid = email.length === 0 || UB_EMAIL_REGEX.test(email)
 
   async function handleSubmit(e) {
     e.preventDefault()
 
-    if (!UB_EMAIL_REGEX.test(email)) {
-      setError('Please use your UB email address (must end in @ub.edu.bs).')
-      return
-    }
     if (password !== confirmPassword) {
       setError('Passwords do not match.')
       return
@@ -53,7 +44,7 @@ function Signup() {
             KNOW BEFORE YOU GO <span className="text-amber-500">BAHAMAS</span>
           </h1>
           <p className="text-slate-500 text-sm mt-2 text-center">
-            Create an account with your UB email
+            Create your account
           </p>
         </div>
 
@@ -90,7 +81,7 @@ function Signup() {
                 htmlFor="email"
                 className="block text-sm font-medium text-slate-700 mb-1.5"
               >
-                UB Email
+                Email
               </label>
               <input
                 id="email"
@@ -100,20 +91,9 @@ function Signup() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => setEmailTouched(true)}
-                placeholder="yourname@ub.edu.bs"
-                aria-invalid={emailTouched && !emailValid}
-                className={`w-full rounded-lg border px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${
-                  emailTouched && !emailValid
-                    ? 'border-red-400 focus:ring-red-400 focus:border-red-400'
-                    : 'border-slate-300 focus:ring-blue-900 focus:border-blue-900'
-                }`}
+                placeholder="you@example.com"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900"
               />
-              {emailTouched && !emailValid && (
-                <p className="mt-1.5 text-sm text-red-600">
-                  Must be a valid UB email ending in @ub.edu.bs
-                </p>
-              )}
             </div>
 
             <div>

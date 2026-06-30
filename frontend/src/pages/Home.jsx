@@ -43,7 +43,7 @@ function Home() {
           Know Before You Go <span className="text-amber-500">Bahamas</span>
         </h1>
         <p className="text-slate-500 mt-4 max-w-md mx-auto">
-          Real reviews from real students at The University of The Bahamas.
+          Real reviews from real students across The Bahamas.
         </p>
 
         <div className="mt-8 max-w-md mx-auto bg-white rounded-2xl border border-slate-100 shadow-sm p-4">

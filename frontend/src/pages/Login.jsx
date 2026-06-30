@@ -36,7 +36,7 @@ function Login() {
             KNOW BEFORE YOU GO <span className="text-amber-500">BAHAMAS</span>
           </h1>
           <p className="text-slate-500 text-sm mt-2 text-center">
-            Sign in with your UB email to continue
+            Sign in to continue
           </p>
         </div>
 
@@ -53,7 +53,7 @@ function Login() {
                 htmlFor="email"
                 className="block text-sm font-medium text-slate-700 mb-1.5"
               >
-                UB Email
+                Email
               </label>
               <input
                 id="email"
@@ -63,7 +63,7 @@ function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="yourname@ub.edu.bs"
+                placeholder="you@example.com"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900"
               />
             </div>
