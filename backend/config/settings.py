@@ -216,3 +216,5 @@ PAYONEER_API_BASE_URL = os.environ.get('PAYONEER_API_BASE_URL', 'https://api.san
 # UB students, so default to the Bahamas; override via env if that's wrong.
 PAYONEER_DEFAULT_COUNTRY = os.environ.get('PAYONEER_DEFAULT_COUNTRY', 'BS')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')

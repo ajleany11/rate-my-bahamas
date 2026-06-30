@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import Logo from '../components/Logo'
-import { register } from '../api/auth'
+import { register, googleLogin } from '../api/auth'
 
 function Signup() {
   const navigate = useNavigate()
@@ -187,6 +188,26 @@ function Signup() {
               {submitting ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
+        </div>
+
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <div className="flex items-center gap-3 w-full">
+            <div className="flex-1 h-px bg-slate-200" />
+            <span className="text-xs text-slate-400">or</span>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+          <GoogleLogin
+            onSuccess={async (response) => {
+              try {
+                await googleLogin(response.credential)
+                navigate('/')
+              } catch (err) {
+                setError(err.message)
+              }
+            }}
+            onError={() => setError('Google sign-in failed. Please try again.')}
+            width="100%"
+          />
         </div>
 
         <p className="text-center text-sm text-slate-500 mt-6">

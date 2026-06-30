@@ -53,6 +53,13 @@ export async function login(email, password) {
   return data
 }
 
+export async function googleLogin(credential) {
+  const data = await postJson('/api/accounts/google/', { credential })
+  localStorage.setItem('access', data.access)
+  localStorage.setItem('refresh', data.refresh)
+  return data
+}
+
 export async function register({ fullName, ubEmail, password, password2 }) {
   return postJson('/api/accounts/register/', {
     full_name: fullName,
