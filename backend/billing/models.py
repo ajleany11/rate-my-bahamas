@@ -39,8 +39,11 @@ class Payment(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, related_name='payments')
-    stripe_checkout_session_id = models.CharField(max_length=255, unique=True)
-    stripe_payment_intent_id = models.CharField(max_length=255, blank=True)
+    # Our own ID, sent as `transactionId` on the LIST request — this is what ties the
+    # later notification back to this row (Payoneer's own list/transaction IDs aren't
+    # guaranteed available until the notification arrives).
+    payoneer_transaction_id = models.CharField(max_length=255, unique=True)
+    payoneer_short_id = models.CharField(max_length=255, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True)

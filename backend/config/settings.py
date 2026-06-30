@@ -192,9 +192,24 @@ FRONTEND_DIST_DIR = BASE_DIR / 'frontend_dist'
 if FRONTEND_DIST_DIR.exists():
     WHITENOISE_ROOT = FRONTEND_DIST_DIR
 
-# Stripe (billing). Keys are blank until set in .env — checkout/webhook
+# Payoneer Checkout (billing). Blank until set in .env — checkout/notification
 # views fail gracefully with a clear error until they're configured.
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+# PAYONEER_API_USERNAME / PAYONEER_PAYMENT_TOKEN come from the merchant portal:
+# Integration > API access > Generate token.
+# PAYONEER_DIVISION is your store/division code, also from that portal.
+# PAYONEER_NOTIFICATION_TOKEN is a secret we make up ourselves and attach to the
+# notificationUrl, so we can confirm incoming notifications actually came from us
+# asking Payoneer to call back (Payoneer Checkout has no signature/HMAC scheme).
+PAYONEER_API_USERNAME = os.environ.get('PAYONEER_API_USERNAME', '')
+PAYONEER_PAYMENT_TOKEN = os.environ.get('PAYONEER_PAYMENT_TOKEN', '')
+PAYONEER_DIVISION = os.environ.get('PAYONEER_DIVISION', '')
+PAYONEER_NOTIFICATION_TOKEN = os.environ.get('PAYONEER_NOTIFICATION_TOKEN', '')
+# Sandbox by default — switch to the live base URL Payoneer gives you when your
+# account is approved (confirm the exact host in the merchant portal; don't assume
+# api.live.oscato.com without checking, the sandbox host is the only one that's
+# been confirmed against current docs).
+PAYONEER_API_BASE_URL = os.environ.get('PAYONEER_API_BASE_URL', 'https://api.sandbox.oscato.com')
+# Customer's country code for the LIST request. We don't currently collect this from
+# UB students, so default to the Bahamas; override via env if that's wrong.
+PAYONEER_DEFAULT_COUNTRY = os.environ.get('PAYONEER_DEFAULT_COUNTRY', 'BS')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')

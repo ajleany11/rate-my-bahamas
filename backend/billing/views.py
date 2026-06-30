@@ -1,5 +1,8 @@
-import stripe
+import uuid
+
+import requests
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -24,7 +27,8 @@ class CheckoutSessionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        if not settings.STRIPE_SECRET_KEY:
+        if not (settings.PAYONEER_API_USERNAME and settings.PAYONEER_PAYMENT_TOKEN
+                and settings.PAYONEER_DIVISION and settings.PAYONEER_NOTIFICATION_TOKEN):
             return Response({'detail': 'Payments are not configured yet.'}, status=503)
 
         semester = Semester.get_current()
@@ -34,52 +38,85 @@ class CheckoutSessionView(APIView):
         if Payment.objects.filter(user=request.user, semester=semester, status=Payment.PAID).exists():
             return Response({'detail': 'You already have access for this semester.'}, status=400)
 
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        session = stripe.checkout.Session.create(
-            mode='payment',
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {'name': f'KnowBeforeYouGo access — {semester.name}'},
-                    'unit_amount': semester.price_cents,
-                },
-                'quantity': 1,
-            }],
-            customer_email=request.user.ub_email,
-            success_url=f'{settings.FRONTEND_URL}/subscribe/success',
-            cancel_url=f'{settings.FRONTEND_URL}/subscribe',
-            metadata={'user_id': str(request.user.id), 'semester_id': str(semester.id)},
+        # Ours, not Payoneer's — this is what the notification echoes back so we can
+        # find the right Payment row without depending on the shape of the LIST response.
+        transaction_id = f'kbyg-{uuid.uuid4().hex}'
+        notification_url = request.build_absolute_uri(
+            f"{reverse('billing-notify')}?token={settings.PAYONEER_NOTIFICATION_TOKEN}"
         )
+
+        payload = {
+            'transactionId': transaction_id,
+            'integration': 'HOSTED',
+            'operationType': 'CHARGE',
+            'division': settings.PAYONEER_DIVISION,
+            'country': settings.PAYONEER_DEFAULT_COUNTRY,
+            'customer': {
+                'number': str(request.user.id),
+                'email': request.user.ub_email,
+            },
+            'payment': {
+                'amount': semester.price_cents / 100,
+                'currency': 'USD',
+                'reference': f'KnowBeforeYouGo access — {semester.name}',
+            },
+            'callback': {
+                'returnUrl': f'{settings.FRONTEND_URL}/subscribe/success',
+                'cancelUrl': f'{settings.FRONTEND_URL}/subscribe',
+                'notificationUrl': notification_url,
+            },
+        }
+
+        try:
+            response = requests.post(
+                f'{settings.PAYONEER_API_BASE_URL}/api/lists',
+                json=payload,
+                auth=(settings.PAYONEER_API_USERNAME, settings.PAYONEER_PAYMENT_TOKEN),
+                timeout=15,
+            )
+            response.raise_for_status()
+            redirect_url = response.json().get('redirect', {}).get('url')
+        except (requests.RequestException, ValueError):
+            redirect_url = None
+
+        if not redirect_url:
+            return Response({'detail': 'Could not start payment. Please try again.'}, status=502)
 
         Payment.objects.update_or_create(
             user=request.user,
             semester=semester,
-            defaults={'stripe_checkout_session_id': session.id, 'status': Payment.PENDING},
+            defaults={'payoneer_transaction_id': transaction_id, 'status': Payment.PENDING},
         )
 
-        return Response({'checkout_url': session.url})
+        return Response({'checkout_url': redirect_url})
 
 
-class StripeWebhookView(APIView):
+class PayoneerNotificationView(APIView):
+    """Receives the async notification Payoneer Checkout POSTs after a payment attempt.
+
+    Always returns 200 for recognized requests — Payoneer retries on anything else,
+    and there's nothing more for them to do once we've recorded the outcome.
+    """
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        if not settings.STRIPE_WEBHOOK_SECRET:
+        if not settings.PAYONEER_NOTIFICATION_TOKEN:
             return Response(status=503)
+        if request.GET.get('token') != settings.PAYONEER_NOTIFICATION_TOKEN:
+            return Response(status=403)
 
-        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
-        try:
-            event = stripe.Webhook.construct_event(request.body, sig_header, settings.STRIPE_WEBHOOK_SECRET)
-        except (ValueError, stripe.error.SignatureVerificationError):
-            return Response(status=400)
+        payload = request.data or request.POST
+        transaction_id = payload.get('transactionId')
+        if not transaction_id:
+            return Response(status=200)
 
-        if event['type'] == 'checkout.session.completed':
-            session = event['data']['object']
-            Payment.objects.filter(stripe_checkout_session_id=session['id']).update(
+        if payload.get('interactionCode') == 'PROCEED' and payload.get('statusCode') == 'charged':
+            Payment.objects.filter(payoneer_transaction_id=transaction_id).update(
                 status=Payment.PAID,
-                stripe_payment_intent_id=session.get('payment_intent') or '',
+                payoneer_short_id=payload.get('shortId', ''),
                 paid_at=timezone.now(),
             )
+        elif payload.get('interactionCode') not in ('PROCEED', None):
+            Payment.objects.filter(payoneer_transaction_id=transaction_id).update(status=Payment.FAILED)
 
         return Response(status=200)
