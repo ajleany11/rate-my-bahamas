@@ -1,11 +1,14 @@
 import re
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core import signing
+from django.utils import timezone
 from rest_framework import serializers
 
-from .models import VerificationCode
-from .utils import issue_verification_code, send_verification_email
+from .models import PendingSignup, VerificationCode
+from .utils import CODE_LIFETIME_MINUTES, generate_code, issue_verification_code, send_code_email, send_verification_email
 
 UB_EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@ub\.edu\.bs$')
 RESET_TOKEN_SALT = 'accounts.password-reset'
@@ -14,14 +17,11 @@ RESET_TOKEN_MAX_AGE = 10 * 60  # seconds
 User = get_user_model()
 
 
-class RegisterSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(write_only=True)
+class RegisterSerializer(serializers.Serializer):
+    full_name = serializers.CharField()
+    ub_email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     password2 = serializers.CharField(write_only=True, min_length=8)
-
-    class Meta:
-        model = User
-        fields = ('full_name', 'ub_email', 'password', 'password2')
 
     def validate_ub_email(self, value):
         if not UB_EMAIL_REGEX.match(value):
@@ -37,27 +37,22 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password2': 'Passwords do not match.'})
         return attrs
 
-    def create(self, validated_data):
-        full_name = validated_data['full_name'].strip()
+    def save(self):
+        full_name = self.validated_data['full_name'].strip()
         first_name, _, last_name = full_name.partition(' ')
-        ub_email = validated_data['ub_email']
+        ub_email = self.validated_data['ub_email']
 
-        # An inactive user from an abandoned/expired signup attempt is reused
-        # rather than rejected, so a never-verified email doesn't get stuck.
-        user = User.objects.filter(ub_email__iexact=ub_email, is_active=False).first() or User()
-        user.username = ub_email
-        user.email = ub_email
-        user.ub_email = ub_email
-        user.first_name = first_name
-        user.last_name = last_name
-        user.is_ub_student = True
-        user.is_active = False
-        user.set_password(validated_data['password'])
-        user.save()
+        code = generate_code()
+        pending = PendingSignup.objects.filter(ub_email__iexact=ub_email).first() or PendingSignup()
+        pending.ub_email = ub_email
+        pending.first_name = first_name
+        pending.last_name = last_name
+        pending.password_hash = make_password(self.validated_data['password'])
+        pending.code = code
+        pending.expires_at = timezone.now() + timedelta(minutes=CODE_LIFETIME_MINUTES)
+        pending.save()
 
-        code_obj = issue_verification_code(user, VerificationCode.SIGNUP)
-        send_verification_email(user, code_obj)
-        return user
+        send_code_email(ub_email, VerificationCode.SIGNUP, code)
 
 
 class VerifyEmailSerializer(serializers.Serializer):
@@ -65,28 +60,29 @@ class VerifyEmailSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6)
 
     def validate(self, attrs):
-        try:
-            user = User.objects.get(ub_email__iexact=attrs['email'], is_active=False)
-        except User.DoesNotExist:
+        pending = PendingSignup.objects.filter(ub_email__iexact=attrs['email']).first()
+        if not pending:
             raise serializers.ValidationError('Invalid email or this account is already verified.')
-
-        code_obj = VerificationCode.objects.filter(
-            user=user, purpose=VerificationCode.SIGNUP, code=attrs['code'], is_used=False,
-        ).order_by('-created_at').first()
-        if not code_obj or not code_obj.is_valid():
+        if pending.code != attrs['code'] or not pending.is_valid():
             raise serializers.ValidationError({'code': 'Invalid or expired code.'})
 
-        attrs['user'] = user
-        attrs['code_obj'] = code_obj
+        attrs['pending'] = pending
         return attrs
 
     def save(self):
-        user = self.validated_data['user']
-        code_obj = self.validated_data['code_obj']
-        user.is_active = True
-        user.save(update_fields=['is_active'])
-        code_obj.is_used = True
-        code_obj.save(update_fields=['is_used'])
+        pending = self.validated_data['pending']
+        user = User(
+            username=pending.ub_email,
+            email=pending.ub_email,
+            ub_email=pending.ub_email,
+            first_name=pending.first_name,
+            last_name=pending.last_name,
+            is_ub_student=True,
+            is_active=True,
+            password=pending.password_hash,
+        )
+        user.save()
+        pending.delete()
         return user
 
 

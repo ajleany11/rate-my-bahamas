@@ -30,10 +30,19 @@ PURPOSE_MESSAGES = {
 }
 
 
+def generate_code():
+    return f'{random.randint(0, 999999):06d}'
+
+
+def send_code_email(email, purpose, code):
+    subject = PURPOSE_SUBJECTS[purpose]
+    message = PURPOSE_MESSAGES[purpose].format(code=code, minutes=CODE_LIFETIME_MINUTES)
+    send_mail(subject, message, None, [email])
+
+
 def issue_verification_code(user, purpose):
     VerificationCode.objects.filter(user=user, purpose=purpose, is_used=False).update(is_used=True)
-
-    code = f'{random.randint(0, 999999):06d}'
+    code = generate_code()
     return VerificationCode.objects.create(
         user=user,
         code=code,
@@ -43,6 +52,4 @@ def issue_verification_code(user, purpose):
 
 
 def send_verification_email(user, code_obj):
-    subject = PURPOSE_SUBJECTS[code_obj.purpose]
-    message = PURPOSE_MESSAGES[code_obj.purpose].format(code=code_obj.code, minutes=CODE_LIFETIME_MINUTES)
-    send_mail(subject, message, None, [user.ub_email])
+    send_code_email(user.ub_email, code_obj.purpose, code_obj.code)

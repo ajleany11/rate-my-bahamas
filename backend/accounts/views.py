@@ -10,9 +10,15 @@ from .serializers import (
 )
 
 
-class RegisterView(generics.CreateAPIView):
+class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Verification code sent to your email.'}, status=status.HTTP_201_CREATED)
 
 
 class VerifyEmailView(generics.GenericAPIView):
