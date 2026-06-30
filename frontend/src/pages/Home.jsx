@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Logo from '../components/Logo'
 import SearchBar from '../components/SearchBar'
 import AccessGate from '../components/AccessGate'
 import PillDropdown from '../components/PillDropdown'
@@ -35,10 +36,11 @@ function Home() {
       <Navbar showSearch={false} />
 
       <section className="px-4 py-20 bg-gradient-to-b from-blue-50 to-slate-50 text-center">
+        <div className="flex justify-center mb-4">
+          <Logo size="lg" />
+        </div>
         <h1 className="text-4xl sm:text-5xl font-serif font-bold text-blue-900 leading-tight">
-          Know Before
-          <br />
-          <span className="text-amber-500">You Go.</span>
+          Know Before You Go <span className="text-amber-500">Bahamas</span>
         </h1>
         <p className="text-slate-500 mt-4 max-w-md mx-auto">
           Real reviews from real students at The University of The Bahamas.

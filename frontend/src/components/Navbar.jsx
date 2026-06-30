@@ -19,7 +19,7 @@ function Navbar({ showSearch = true }) {
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <Logo />
           <span className="font-serif font-bold text-blue-900 text-lg leading-none whitespace-nowrap">
-            KNOW BEFORE <span className="text-amber-500">YOU GO</span>
+            KNOW BEFORE YOU GO <span className="text-amber-500">BAHAMAS</span>
           </span>
         </Link>
 

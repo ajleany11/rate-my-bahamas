@@ -33,7 +33,7 @@ function Login() {
             <Logo size="lg" />
           </div>
           <h1 className="text-2xl font-serif font-bold text-blue-900 text-center">
-            KNOW BEFORE <span className="text-amber-500">YOU GO</span>
+            KNOW BEFORE YOU GO <span className="text-amber-500">BAHAMAS</span>
           </h1>
           <p className="text-slate-500 text-sm mt-2 text-center">
             Sign in with your UB email to continue
