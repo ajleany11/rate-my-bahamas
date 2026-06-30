@@ -1,8 +1,18 @@
+from better_profanity import profanity as _profanity_filter
 from django.db.models import Avg, Count, Prefetch, Q
 from django.utils.text import slugify
 from rest_framework import serializers
 
 from .models import Course, Professor, ProfessorCourse, Review
+
+_profanity_filter.load_censor_words()
+
+
+def _check_profanity(value, field_label='Text'):
+    if _profanity_filter.contains_profanity(value):
+        raise serializers.ValidationError(
+            f'{field_label} contains inappropriate language. Please revise your submission.'
+        )
 
 
 def get_or_create_professor_by_name(name, department):
@@ -212,6 +222,11 @@ class ProfessorCourseCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Choose an existing professor or type a new name, not both.')
         return attrs
 
+    def validate_professor_name(self, value):
+        if value:
+            _check_profanity(value, 'Professor name')
+        return value
+
     def create(self, validated_data):
         professor_name = validated_data.pop('professor_name', None)
         course = validated_data['course']
@@ -236,6 +251,11 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         model = Review
         fields = ('id', 'professor', 'course', 'rating', 'difficulty', 'would_take_again', 'uses_textbook', 'comment')
         read_only_fields = ('id',)
+
+    def validate_comment(self, value):
+        if value:
+            _check_profanity(value, 'Review')
+        return value
 
 
 class ProfessorDetailSerializer(serializers.ModelSerializer):
