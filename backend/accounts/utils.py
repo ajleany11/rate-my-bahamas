@@ -2,6 +2,7 @@ import logging
 import random
 from datetime import timedelta
 
+import resend
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -41,10 +42,19 @@ def generate_code():
 def send_code_email(email, purpose, code):
     subject = PURPOSE_SUBJECTS[purpose]
     message = PURPOSE_MESSAGES[purpose].format(code=code, minutes=CODE_LIFETIME_MINUTES)
-    logger.info('Sending %s email to %s via backend=%s from=%s',
-                purpose, email, settings.EMAIL_BACKEND, settings.DEFAULT_FROM_EMAIL)
+    api_key = settings.RESEND_API_KEY
+    logger.info('Sending %s email to %s (resend_api=%s)', purpose, email, bool(api_key))
     try:
-        send_mail(subject, message, None, [email])
+        if api_key:
+            resend.api_key = api_key
+            resend.Emails.send({
+                'from': settings.DEFAULT_FROM_EMAIL,
+                'to': [email],
+                'subject': subject,
+                'text': message,
+            })
+        else:
+            send_mail(subject, message, None, [email])
         logger.info('Email sent successfully to %s', email)
     except Exception:
         logger.exception('Failed to send %s email to %s', purpose, email)

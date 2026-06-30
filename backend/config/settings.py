@@ -96,15 +96,9 @@ REST_FRAMEWORK = {
 # (e.g. in Railway's env vars); otherwise falls back to printing to the console,
 # which is what local dev has always done.
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
-if RESEND_API_KEY:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.resend.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'resend'
-    EMAIL_HOST_PASSWORD = RESEND_API_KEY
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# When RESEND_API_KEY is set, utils.send_code_email uses Resend's HTTP API directly
+# (avoids port 587 which Railway blocks). Console backend is used for local dev.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = os.environ.get(
     'DEFAULT_FROM_EMAIL', 'KnowBeforeYouGo <noreply@knowbeforeyougobahamas.com>'
