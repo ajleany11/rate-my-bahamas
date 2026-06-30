@@ -1,10 +1,14 @@
+import logging
 import random
 from datetime import timedelta
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 
 from .models import VerificationCode
+
+logger = logging.getLogger(__name__)
 
 CODE_LIFETIME_MINUTES = 15
 
@@ -37,7 +41,14 @@ def generate_code():
 def send_code_email(email, purpose, code):
     subject = PURPOSE_SUBJECTS[purpose]
     message = PURPOSE_MESSAGES[purpose].format(code=code, minutes=CODE_LIFETIME_MINUTES)
-    send_mail(subject, message, None, [email])
+    logger.info('Sending %s email to %s via backend=%s from=%s',
+                purpose, email, settings.EMAIL_BACKEND, settings.DEFAULT_FROM_EMAIL)
+    try:
+        send_mail(subject, message, None, [email])
+        logger.info('Email sent successfully to %s', email)
+    except Exception:
+        logger.exception('Failed to send %s email to %s', purpose, email)
+        raise
 
 
 def issue_verification_code(user, purpose):
