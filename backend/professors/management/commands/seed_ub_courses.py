@@ -18,6 +18,7 @@ Usage:
 from django.core.management.base import BaseCommand
 
 from professors.models import Course
+from schools.models import College
 
 # ── Department name constants (must match School.name exactly) ──────────────
 BIZ = "School of Business"
@@ -677,11 +678,26 @@ DEPARTMENT_CORRECTIONS = {
     "Mathematics": MATH_PHYS_TECH,
 }
 
+# College names that need updating to match the official UB catalogue.
+COLLEGE_NAME_CORRECTIONS = {
+    "Business": "College of Business",
+    "Liberal & Fine Arts": "College of Liberal and Fine Arts",
+    "Pure & Applied Sciences": "College of Pure and Applied Sciences",
+    "Social & Educational Studies": "College of Social and Educational Studies",
+    "Tourism, Hospitality, Culinary Arts & Leisure Management": "College of Tourism, Hospitality, Culinary Arts and Leisure Management",
+}
+
 
 class Command(BaseCommand):
     help = "Seed the database with UB course catalogue data and fix any wrong department names."
 
     def handle(self, *args, **options):
+        # ── Fix College names to match the official UB catalogue ───────────
+        for old_name, new_name in COLLEGE_NAME_CORRECTIONS.items():
+            count = College.objects.filter(name=old_name).update(name=new_name)
+            if count:
+                self.stdout.write(f"  Fixed college name: '{old_name}' → '{new_name}'")
+
         # ── Fix existing courses with wrong department names ────────────────
         fixed = 0
         for old_dept, new_dept in DEPARTMENT_CORRECTIONS.items():
