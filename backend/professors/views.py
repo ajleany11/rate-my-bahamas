@@ -1,8 +1,10 @@
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from schools.models import School
 
 from .models import Course, Professor, ProfessorCourse
 from .serializers import (
@@ -92,3 +94,17 @@ class ReviewCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class CourseAssignSchoolView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        course = get_object_or_404(Course, pk=pk)
+        school_slug = request.data.get('school_slug')
+        if not school_slug:
+            return Response({'error': 'school_slug is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        school = get_object_or_404(School, slug=school_slug)
+        course.department = school.name
+        course.save(update_fields=['department'])
+        return Response({'department': course.department})
