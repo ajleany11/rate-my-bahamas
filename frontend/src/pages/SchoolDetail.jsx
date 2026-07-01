@@ -26,10 +26,12 @@ function SchoolDetail() {
 
         {school && (
           <>
-            <Link to={`/colleges/${school.college.slug}`} className="text-sm text-amber-600 hover:underline">
-              {school.college.name}
-            </Link>
-            <h1 className="mt-1 text-3xl font-serif font-bold text-blue-900">{school.name}</h1>
+            {school.college && (
+              <Link to={`/colleges/${school.college.slug}`} className="text-sm text-amber-600 hover:underline">
+                {school.college.name}
+              </Link>
+            )}
+            <h1 className={`${school.college ? 'mt-1' : ''} text-3xl font-serif font-bold text-blue-900`}>{school.name}</h1>
 
             <h2 className="mt-8 text-sm font-semibold text-slate-500 uppercase tracking-wide">
               Courses ({school.courses.length})

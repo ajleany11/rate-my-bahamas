@@ -60,6 +60,16 @@ function Colleges() {
                 </p>
               </Link>
             ))}
+            <Link
+              to="/schools/other"
+              className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md hover:border-blue-100 transition-shadow"
+            >
+              <div className="w-11 h-11 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center">
+                <CollegeIcon />
+              </div>
+              <h2 className="mt-4 font-serif font-bold text-blue-900">Other Courses</h2>
+              <p className="mt-1 text-sm text-slate-500">Courses not listed under a specific school</p>
+            </Link>
           </div>
         )}
       </section>
