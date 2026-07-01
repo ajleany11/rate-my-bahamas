@@ -84,7 +84,17 @@ function SchoolDetail() {
                     className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex items-start gap-3"
                   >
                     <Link to={`/courses/${course.code}`} className="flex-1 hover:opacity-80">
-                      <p className="font-semibold text-blue-900">{course.code}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-blue-900">{course.code}</p>
+                        {!course.department_confirmed && (
+                          <span
+                            title="School assigned by a user — not yet confirmed"
+                            className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5"
+                          >
+                            Unconfirmed
+                          </span>
+                        )}
+                      </div>
                       <p className="text-slate-700">{course.name}</p>
                     </Link>
 

@@ -112,7 +112,7 @@ def top_rated_professors(limit=5):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ('id', 'code', 'name', 'department')
+        fields = ('id', 'code', 'name', 'department', 'department_confirmed')
 
 
 class ProfessorSerializer(serializers.ModelSerializer):

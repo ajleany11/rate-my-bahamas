@@ -106,5 +106,6 @@ class CourseAssignSchoolView(APIView):
             return Response({'error': 'school_slug is required.'}, status=status.HTTP_400_BAD_REQUEST)
         school = get_object_or_404(School, slug=school_slug)
         course.department = school.name
-        course.save(update_fields=['department'])
-        return Response({'department': course.department})
+        course.department_confirmed = False
+        course.save(update_fields=['department', 'department_confirmed'])
+        return Response({'department': course.department, 'department_confirmed': False})
