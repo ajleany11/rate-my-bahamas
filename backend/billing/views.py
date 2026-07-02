@@ -8,7 +8,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Payment, Semester, user_has_active_access
+from .models import Payment, Semester, user_has_active_access, user_is_on_trial, user_trial_days_remaining
 from .serializers import SemesterSerializer
 
 
@@ -17,9 +17,12 @@ class PaymentStatusView(APIView):
 
     def get(self, request):
         semester = Semester.get_current()
+        on_trial = user_is_on_trial(request.user)
         return Response({
             'has_access': user_has_active_access(request.user),
             'semester': SemesterSerializer(semester).data if semester else None,
+            'on_trial': on_trial,
+            'trial_days_remaining': user_trial_days_remaining(request.user) if on_trial else None,
         })
 
 

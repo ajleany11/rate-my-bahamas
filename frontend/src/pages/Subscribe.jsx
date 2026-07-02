@@ -5,7 +5,7 @@ import { useAccessStatus } from '../hooks/useAccessStatus'
 import { createCheckoutSession } from '../api/billing'
 
 function Subscribe() {
-  const { status, semester } = useAccessStatus()
+  const { status, semester, onTrial, trialDaysRemaining } = useAccessStatus()
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -41,7 +41,40 @@ function Subscribe() {
           </div>
         )}
 
-        {status === 'active' && (
+        {status === 'active' && onTrial && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+            <div className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-700 text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 mb-4">
+              Free Trial
+            </div>
+            <h1 className="text-2xl font-serif font-bold text-blue-900">
+              {trialDaysRemaining === 1 ? '1 day left in your trial' : `${trialDaysRemaining} days left in your trial`}
+            </h1>
+            <p className="mt-2 text-slate-500">
+              You have full access right now. Subscribe before your trial ends to keep it.
+            </p>
+            {semester && (
+              <>
+                <p className="mt-4 text-sm text-slate-500">
+                  ${(semester.price_cents / 100).toFixed(2)} for {semester.name} access.
+                </p>
+                {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+                <button
+                  type="button"
+                  onClick={handlePay}
+                  disabled={submitting}
+                  className="mt-4 w-full bg-blue-900 hover:bg-blue-800 disabled:opacity-50 text-white font-semibold rounded-lg py-2.5 transition-colors"
+                >
+                  {submitting ? 'Redirecting...' : `Subscribe — $${(semester.price_cents / 100).toFixed(2)}`}
+                </button>
+              </>
+            )}
+            <Link to="/" className="mt-3 block text-sm text-slate-400 hover:text-slate-600">
+              Back to Home
+            </Link>
+          </div>
+        )}
+
+        {status === 'active' && !onTrial && (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
             <h1 className="text-2xl font-serif font-bold text-blue-900">You&apos;re all set</h1>
             <p className="mt-2 text-slate-500">

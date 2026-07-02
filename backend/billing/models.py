@@ -1,6 +1,11 @@
+import math
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+
+TRIAL_DAYS = 3
 
 
 class Semester(models.Model):
@@ -55,10 +60,25 @@ class Payment(models.Model):
         return f'{self.user} - {self.semester} ({self.status})'
 
 
+def user_trial_days_remaining(user):
+    """Full days remaining in the free trial (ceiling). 0 if expired or not applicable."""
+    if not user or not user.is_authenticated:
+        return 0
+    delta = user.date_joined + timedelta(days=TRIAL_DAYS) - timezone.now()
+    return max(0, math.ceil(delta.total_seconds() / 86400))
+
+
+def user_is_on_trial(user):
+    """True if the user's free trial is still active."""
+    return user_trial_days_remaining(user) > 0
+
+
 def user_has_active_access(user):
-    """True if `user` has a paid Payment for a semester that hasn't ended yet."""
+    """True if `user` has a paid Payment for a current semester, or is within the free trial."""
     if not user or not user.is_authenticated:
         return False
+    if user_is_on_trial(user):
+        return True
     today = timezone.localdate()
     return Payment.objects.filter(
         user=user, status=Payment.PAID, semester__end_date__gte=today
