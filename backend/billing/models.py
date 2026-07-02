@@ -12,7 +12,7 @@ class Semester(models.Model):
     name = models.CharField(max_length=50, unique=True)
     start_date = models.DateField()
     end_date = models.DateField()
-    price_cents = models.PositiveIntegerField(default=100)
+    price_cents = models.PositiveIntegerField(default=199)
 
     class Meta:
         ordering = ['start_date']
