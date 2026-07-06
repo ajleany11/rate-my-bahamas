@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
-import { useAccessStatus } from '../hooks/useAccessStatus'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
 
 function Navbar({ showSearch = true }) {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { onTrial, trialDaysRemaining } = useAccessStatus()
 
   function handleLogout() {
     logout()
@@ -97,21 +95,6 @@ function Navbar({ showSearch = true }) {
         </div>
       )}
 
-      {onTrial && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-center gap-3 text-sm">
-          <span className="text-amber-700 font-medium">
-            {trialDaysRemaining === 1
-              ? '⏳ Your free trial expires in 1 day.'
-              : `⏳ Your free trial expires in ${trialDaysRemaining} days.`}
-          </span>
-          <Link
-            to="/subscribe"
-            className="font-semibold text-blue-900 hover:underline shrink-0"
-          >
-            Subscribe →
-          </Link>
-        </div>
-      )}
     </nav>
   )
 }

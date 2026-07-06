@@ -74,12 +74,5 @@ def user_is_on_trial(user):
 
 
 def user_has_active_access(user):
-    """True if `user` has a paid Payment for a current semester, or is within the free trial."""
-    if not user or not user.is_authenticated:
-        return False
-    if user_is_on_trial(user):
-        return True
-    today = timezone.localdate()
-    return Payment.objects.filter(
-        user=user, status=Payment.PAID, semester__end_date__gte=today
-    ).exists()
+    """All authenticated users have access — paywall removed."""
+    return bool(user and user.is_authenticated)
