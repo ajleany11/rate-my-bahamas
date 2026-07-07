@@ -56,7 +56,7 @@ function ProfessorDetail() {
           <AccessGate
             status={accessStatus}
             semester={semester}
-            message="Log in and pay to see this professor's reviews."
+            message="Log in to see this professor's reviews."
           />
         )}
 

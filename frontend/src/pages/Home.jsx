@@ -84,7 +84,7 @@ function Home() {
             <AccessGate
               status={accessStatus}
               semester={semester}
-              message="Log in and pay to see the top rated professors."
+              message="Log in to see the top rated professors."
             />
           </div>
         )}

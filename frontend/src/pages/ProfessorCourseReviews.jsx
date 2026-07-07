@@ -30,7 +30,7 @@ function ProfessorCourseReviews() {
 
       <section className="max-w-3xl mx-auto px-4 py-12">
         {accessStatus !== 'active' && (
-          <AccessGate status={accessStatus} semester={semester} message="Log in and pay to see these reviews." />
+          <AccessGate status={accessStatus} semester={semester} message="Log in to see these reviews." />
         )}
 
         {accessStatus === 'active' && error && <p className="text-slate-500">{error}</p>}

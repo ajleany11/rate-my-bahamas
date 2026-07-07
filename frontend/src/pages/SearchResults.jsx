@@ -141,7 +141,7 @@ function SearchResults() {
 
               {activeTab === 'professors' &&
                 (accessStatus !== 'active' ? (
-                  <AccessGate status={accessStatus} semester={semester} message="Log in and pay to see professors." />
+                  <AccessGate status={accessStatus} semester={semester} message="Log in to see professors." />
                 ) : visibleItems.length === 0 ? (
                   <p className="text-slate-500">No professors found.</p>
                 ) : (
