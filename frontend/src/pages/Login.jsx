@@ -179,6 +179,8 @@ function Login() {
               }
             }}
             onError={() => setError('Google sign-in failed. Please try again.')}
+            ux_mode="redirect"
+            login_uri={`${window.location.origin}/api/accounts/google/redirect/`}
             width="100%"
           />
         </div>

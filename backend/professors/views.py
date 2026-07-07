@@ -59,7 +59,7 @@ class ProfessorListView(generics.ListAPIView):
 
 
 class TopRatedProfessorsView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         results = [

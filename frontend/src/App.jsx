@@ -15,6 +15,7 @@ import SchoolDetail from './pages/SchoolDetail'
 import SearchResults from './pages/SearchResults'
 import Subscribe from './pages/Subscribe'
 import SubscribeSuccess from './pages/SubscribeSuccess'
+import AuthCallback from './pages/AuthCallback'
 import RequireAuth from './components/RequireAuth'
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         <Route path="/search" element={<SearchResults />} />
         <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/subscribe/success" element={<SubscribeSuccess />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/dashboard"
           element={

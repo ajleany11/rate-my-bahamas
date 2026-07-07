@@ -19,7 +19,7 @@ export async function getAllProfessors() {
 }
 
 export async function getTopRatedProfessors() {
-  const res = await authFetch('/api/professors/top-rated/')
+  const res = await fetch(`${API_BASE_URL}/api/professors/top-rated/`)
   if (!res.ok) {
     throw new Error('Failed to load top rated professors.')
   }
