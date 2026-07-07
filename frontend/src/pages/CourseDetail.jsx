@@ -14,6 +14,7 @@ function CourseDetail() {
   const [similarCourses, setSimilarCourses] = useState([])
   const [reviewTarget, setReviewTarget] = useState(null)
   const [showAddProfessor, setShowAddProfessor] = useState(false)
+  const [showSignInMsg, setShowSignInMsg] = useState(false)
 
   useEffect(() => {
     setCourse(null)
@@ -29,9 +30,10 @@ function CourseDetail() {
 
   async function handleRateClick(professor) {
     if (!(await isAuthenticated())) {
-      navigate('/login')
+      setShowSignInMsg(true)
       return
     }
+    setShowSignInMsg(false)
     setReviewTarget(professor)
   }
 
@@ -142,6 +144,10 @@ function CourseDetail() {
                   </div>
                 ))}
               </div>
+            )}
+
+            {showSignInMsg && (
+              <p className="mt-3 text-sm text-amber-600">Sign in before you rate.</p>
             )}
 
             <button
