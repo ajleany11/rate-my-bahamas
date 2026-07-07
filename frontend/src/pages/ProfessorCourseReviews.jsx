@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import AccessGate from '../components/AccessGate'
-import { useAccessStatus } from '../hooks/useAccessStatus'
 import { getProfessorCourseDetail } from '../api/professors'
 
 function formatDate(isoString) {
@@ -11,32 +9,26 @@ function formatDate(isoString) {
 
 function ProfessorCourseReviews() {
   const { id } = useParams()
-  const { status: accessStatus, semester } = useAccessStatus()
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (accessStatus !== 'active') return
     setData(null)
     setError(null)
     getProfessorCourseDetail(id)
       .then(setData)
       .catch(() => setError('Failed to load reviews.'))
-  }, [id, accessStatus])
+  }, [id])
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
 
       <section className="max-w-3xl mx-auto px-4 py-12">
-        {accessStatus !== 'active' && (
-          <AccessGate status={accessStatus} semester={semester} message="Log in to see these reviews." />
-        )}
+        {error && <p className="text-slate-500">{error}</p>}
+        {!error && !data && <p className="text-slate-500">Loading...</p>}
 
-        {accessStatus === 'active' && error && <p className="text-slate-500">{error}</p>}
-        {accessStatus === 'active' && !error && !data && <p className="text-slate-500">Loading...</p>}
-
-        {accessStatus === 'active' && data && (
+        {data && (
           <>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
               <div className="flex items-start justify-between gap-4">

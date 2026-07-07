@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Logo from '../components/Logo'
 import SearchBar from '../components/SearchBar'
-import AccessGate from '../components/AccessGate'
 import PillDropdown from '../components/PillDropdown'
-import { useAccessStatus } from '../hooks/useAccessStatus'
 import { getTopRatedProfessors } from '../api/professors'
 import { getAllSchools, getColleges } from '../api/colleges'
 
@@ -20,16 +18,14 @@ function initials(name) {
 }
 
 function Home() {
-  const { status: accessStatus, semester } = useAccessStatus()
   const [topProfessors, setTopProfessors] = useState([])
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (accessStatus !== 'active') return
     getTopRatedProfessors()
       .then(setTopProfessors)
       .catch(() => setError('Failed to load top rated professors.'))
-  }, [accessStatus])
+  }, [])
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -79,23 +75,13 @@ function Home() {
           Top Rated Professors
         </h2>
 
-        {accessStatus !== 'active' && (
-          <div className="mt-4">
-            <AccessGate
-              status={accessStatus}
-              semester={semester}
-              message="Log in to see the top rated professors."
-            />
-          </div>
-        )}
+        {error && <p className="mt-4 text-slate-500 text-center">{error}</p>}
 
-        {accessStatus === 'active' && error && <p className="mt-4 text-slate-500 text-center">{error}</p>}
-
-        {accessStatus === 'active' && !error && topProfessors.length === 0 && (
+        {!error && topProfessors.length === 0 && (
           <p className="mt-4 text-slate-500 text-center">No rated professors yet.</p>
         )}
 
-        {accessStatus === 'active' && topProfessors.length > 0 && (
+        {topProfessors.length > 0 && (
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {topProfessors.map((professor) => (
               <Link

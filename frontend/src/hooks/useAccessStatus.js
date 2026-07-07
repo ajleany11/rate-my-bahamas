@@ -26,7 +26,7 @@ export function useAccessStatus() {
           })
         }
       } catch {
-        if (!cancelled) setState({ status: 'unpaid', semester: null, onTrial: false, trialDaysRemaining: null })
+        if (!cancelled) setState({ status: 'guest', semester: null, onTrial: false, trialDaysRemaining: null })
       }
     }
 

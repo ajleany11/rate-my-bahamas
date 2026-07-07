@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import AccessGate from '../components/AccessGate'
-import { useAccessStatus } from '../hooks/useAccessStatus'
 import { getProfessorDetail } from '../api/professors'
 
 function formatDate(isoString) {
@@ -21,20 +19,18 @@ function initials(name) {
 
 function ProfessorDetail() {
   const { slug } = useParams()
-  const { status: accessStatus, semester } = useAccessStatus()
   const [professor, setProfessor] = useState(null)
   const [error, setError] = useState(null)
   const [activeDepartment, setActiveDepartment] = useState('all')
 
   useEffect(() => {
-    if (accessStatus !== 'active') return
     setProfessor(null)
     setError(null)
     setActiveDepartment('all')
     getProfessorDetail(slug)
       .then(setProfessor)
       .catch(() => setError('Failed to load this professor.'))
-  }, [slug, accessStatus])
+  }, [slug])
 
   const departmentTabs = useMemo(() => {
     if (!professor) return []
@@ -52,18 +48,10 @@ function ProfessorDetail() {
       <Navbar />
 
       <section className="max-w-3xl mx-auto px-4 py-12">
-        {accessStatus !== 'active' && (
-          <AccessGate
-            status={accessStatus}
-            semester={semester}
-            message="Log in to see this professor's reviews."
-          />
-        )}
+        {error && <p className="text-slate-500">{error}</p>}
+        {!error && !professor && <p className="text-slate-500">Loading...</p>}
 
-        {accessStatus === 'active' && error && <p className="text-slate-500">{error}</p>}
-        {accessStatus === 'active' && !error && !professor && <p className="text-slate-500">Loading...</p>}
-
-        {accessStatus === 'active' && professor && (
+        {professor && (
           <>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
               <div className="flex items-start justify-between gap-4">
