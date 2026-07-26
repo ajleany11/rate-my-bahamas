@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { createReview } from '../api/reviews'
+import { updateReview } from '../api/reviews'
 import { ScalePicker, YesNoToggle } from './ReviewFormFields'
 
-function WriteReviewModal({ professor, course, onClose, onSubmitted }) {
-  const [rating, setRating] = useState(0)
-  const [difficulty, setDifficulty] = useState(0)
-  const [wouldTakeAgain, setWouldTakeAgain] = useState(null)
-  const [usesTextbook, setUsesTextbook] = useState(null)
-  const [comment, setComment] = useState('')
+function EditReviewModal({ review, onClose, onSaved }) {
+  const [rating, setRating] = useState(review.rating)
+  const [difficulty, setDifficulty] = useState(review.difficulty)
+  const [wouldTakeAgain, setWouldTakeAgain] = useState(review.would_take_again)
+  const [usesTextbook, setUsesTextbook] = useState(review.uses_textbook)
+  const [comment, setComment] = useState(review.comment || '')
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -21,16 +21,14 @@ function WriteReviewModal({ professor, course, onClose, onSubmitted }) {
     setSubmitting(true)
     setError(null)
     try {
-      const review = await createReview({
-        professor: professor.id,
-        course: course.id,
+      const updated = await updateReview(review.id, {
         rating,
         difficulty,
         wouldTakeAgain,
         usesTextbook,
         comment,
       })
-      onSubmitted(review)
+      onSaved({ ...review, ...updated })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -49,9 +47,9 @@ function WriteReviewModal({ professor, course, onClose, onSubmitted }) {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-serif font-bold text-blue-900">Rate {professor.name}</h2>
+            <h2 className="text-xl font-serif font-bold text-blue-900">Edit rating for {review.professor.name}</h2>
             <p className="text-sm text-slate-500">
-              {course.code} - {course.name}
+              {review.course.code} - {review.course.name}
             </p>
           </div>
           <button
@@ -81,11 +79,11 @@ function WriteReviewModal({ professor, course, onClose, onSubmitted }) {
           />
 
           <div>
-            <label htmlFor="review-comment" className="text-sm font-semibold text-slate-700">
+            <label htmlFor="edit-review-comment" className="text-sm font-semibold text-slate-700">
               Comment (optional)
             </label>
             <textarea
-              id="review-comment"
+              id="edit-review-comment"
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               rows={4}
@@ -101,7 +99,7 @@ function WriteReviewModal({ professor, course, onClose, onSubmitted }) {
             disabled={submitting}
             className="w-full bg-blue-900 hover:bg-blue-800 disabled:opacity-50 text-white font-semibold rounded-lg py-2.5 transition-colors"
           >
-            {submitting ? 'Submitting...' : 'Submit Review'}
+            {submitting ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
       </div>
@@ -109,4 +107,4 @@ function WriteReviewModal({ professor, course, onClose, onSubmitted }) {
   )
 }
 
-export default WriteReviewModal
+export default EditReviewModal

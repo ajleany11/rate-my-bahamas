@@ -31,6 +31,12 @@ function Navbar({ showSearch = true }) {
 
         <div className="hidden sm:flex items-center gap-3 ml-auto">
           <Link
+            to="/my-ratings"
+            className="text-sm font-medium text-slate-600 hover:text-blue-900"
+          >
+            My Ratings
+          </Link>
+          <Link
             to="/dashboard"
             aria-label="Profile"
             className="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"
@@ -78,6 +84,13 @@ function Navbar({ showSearch = true }) {
       {isMenuOpen && (
         <div className="sm:hidden border-t border-slate-100 px-4 py-3 space-y-3">
           {showSearch && <SearchBar />}
+          <Link
+            to="/my-ratings"
+            onClick={() => setIsMenuOpen(false)}
+            className="block text-sm font-medium text-slate-600 hover:text-blue-900"
+          >
+            My Ratings
+          </Link>
           <Link
             to="/dashboard"
             onClick={() => setIsMenuOpen(false)}

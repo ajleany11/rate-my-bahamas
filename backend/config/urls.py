@@ -19,11 +19,13 @@ from django.urls import include, path, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from professors.views import (
+    MyReviewsListView,
     ProfessorCourseCreateView,
     ProfessorCourseDetailView,
     ProfessorDetailView,
     ProfessorListView,
     ReviewCreateView,
+    ReviewUpdateView,
     TopRatedProfessorsView,
 )
 from .views import serve_frontend
@@ -43,6 +45,8 @@ urlpatterns = [
     path('api/professors/', ProfessorListView.as_view(), name='professor-list'),
     path('api/professors/<slug:slug>/', ProfessorDetailView.as_view(), name='professor-detail'),
     path('api/reviews/', ReviewCreateView.as_view(), name='review-create'),
+    path('api/reviews/mine/', MyReviewsListView.as_view(), name='my-reviews'),
+    path('api/reviews/<int:pk>/', ReviewUpdateView.as_view(), name='review-update'),
     # Catch-all, must stay last: hands any non-API/non-admin path to the React app
     # so client-side routing (React Router) can take over.
     re_path(r'^.*$', serve_frontend, name='frontend'),

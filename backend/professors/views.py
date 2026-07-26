@@ -9,15 +9,17 @@ from rest_framework.views import APIView
 
 from schools.models import School
 
-from .models import Course, Professor, ProfessorCourse
+from .models import Course, Professor, ProfessorCourse, Review
 from .serializers import (
     CourseDetailSerializer,
     CourseSerializer,
+    MyReviewSerializer,
     ProfessorCourseCreateSerializer,
     ProfessorCourseDetailSerializer,
     ProfessorDetailSerializer,
     ProfessorSerializer,
     ReviewCreateSerializer,
+    ReviewUpdateSerializer,
     top_rated_professors,
 )
 from config.settings import CACHE_TTL_MEDIUM, CACHE_TTL_LONG, CACHE_TTL_SHORT
@@ -105,6 +107,29 @@ class ReviewCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class MyReviewsListView(generics.ListAPIView):
+    """All reviews written by the current user, most recent first."""
+
+    serializer_class = MyReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user).select_related('professor', 'course').order_by('-created_at')
+
+
+class ReviewUpdateView(generics.RetrieveUpdateAPIView):
+    """Lets a user view/edit one of their own reviews. Scoping the queryset to the
+    requesting user (rather than checking ownership after lookup) means someone else's
+    review ID 404s instead of 403ing, so it doesn't even confirm the review exists.
+    """
+
+    serializer_class = ReviewUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user)
 
 
 class CourseAssignSchoolView(APIView):

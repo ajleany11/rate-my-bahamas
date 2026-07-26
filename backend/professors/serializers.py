@@ -258,6 +258,37 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         return value
 
 
+class MyReviewSerializer(serializers.ModelSerializer):
+    """A review as shown back to the user who wrote it, with professor/course context attached."""
+
+    professor = ProfessorSerializer(read_only=True)
+    course = CourseSerializer(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = (
+            'id', 'professor', 'course', 'rating', 'difficulty', 'would_take_again', 'uses_textbook', 'comment',
+            'created_at',
+        )
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+    """Edits an existing review. Professor/course are fixed at creation time and not editable here."""
+
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    difficulty = serializers.IntegerField(min_value=1, max_value=5)
+
+    class Meta:
+        model = Review
+        fields = ('id', 'rating', 'difficulty', 'would_take_again', 'uses_textbook', 'comment')
+        read_only_fields = ('id',)
+
+    def validate_comment(self, value):
+        if value:
+            _check_profanity(value, 'Review')
+        return value
+
+
 class ProfessorDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Professor

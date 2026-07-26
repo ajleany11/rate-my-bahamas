@@ -8,6 +8,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import CourseDetail from './pages/CourseDetail'
 import Dashboard from './pages/Dashboard'
+import MyRatings from './pages/MyRatings'
 import CollegeDetail from './pages/CollegeDetail'
 import Colleges from './pages/Colleges'
 import ProfessorCourseReviews from './pages/ProfessorCourseReviews'
@@ -80,6 +81,14 @@ function App() {
           element={
             <RequireAuth>
               <LoaderWrapper><Dashboard /></LoaderWrapper>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-ratings"
+          element={
+            <RequireAuth>
+              <LoaderWrapper><MyRatings /></LoaderWrapper>
             </RequireAuth>
           }
         />

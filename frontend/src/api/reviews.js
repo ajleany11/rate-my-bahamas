@@ -28,3 +28,31 @@ export async function createReview({ professor, course, rating, difficulty, woul
   }
   return data
 }
+
+export async function getMyReviews() {
+  const res = await authFetch('/api/reviews/mine/')
+  const data = await res.json()
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(data))
+  }
+  return data
+}
+
+export async function updateReview(id, { rating, difficulty, wouldTakeAgain, usesTextbook, comment }) {
+  const res = await authFetch(`/api/reviews/${id}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      rating,
+      difficulty,
+      would_take_again: wouldTakeAgain,
+      uses_textbook: usesTextbook,
+      comment,
+    }),
+  })
+  const data = await res.json()
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(data))
+  }
+  return data
+}
