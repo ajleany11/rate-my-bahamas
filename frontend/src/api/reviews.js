@@ -56,3 +56,11 @@ export async function updateReview(id, { rating, difficulty, wouldTakeAgain, use
   }
   return data
 }
+
+export async function deleteReview(id) {
+  const res = await authFetch(`/api/reviews/${id}/`, { method: 'DELETE' })
+  if (!res.ok) {
+    const data = await res.json().catch(() => null)
+    throw new Error(extractErrorMessage(data))
+  }
+}

@@ -25,7 +25,7 @@ from professors.views import (
     ProfessorDetailView,
     ProfessorListView,
     ReviewCreateView,
-    ReviewUpdateView,
+    ReviewDetailView,
     TopRatedProfessorsView,
 )
 from .views import serve_frontend
@@ -46,7 +46,7 @@ urlpatterns = [
     path('api/professors/<slug:slug>/', ProfessorDetailView.as_view(), name='professor-detail'),
     path('api/reviews/', ReviewCreateView.as_view(), name='review-create'),
     path('api/reviews/mine/', MyReviewsListView.as_view(), name='my-reviews'),
-    path('api/reviews/<int:pk>/', ReviewUpdateView.as_view(), name='review-update'),
+    path('api/reviews/<int:pk>/', ReviewDetailView.as_view(), name='review-detail'),
     # Catch-all, must stay last: hands any non-API/non-admin path to the React app
     # so client-side routing (React Router) can take over.
     re_path(r'^.*$', serve_frontend, name='frontend'),

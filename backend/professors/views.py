@@ -119,8 +119,8 @@ class MyReviewsListView(generics.ListAPIView):
         return Review.objects.filter(user=self.request.user).select_related('professor', 'course').order_by('-created_at')
 
 
-class ReviewUpdateView(generics.RetrieveUpdateAPIView):
-    """Lets a user view/edit one of their own reviews. Scoping the queryset to the
+class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Lets a user view/edit/delete one of their own reviews. Scoping the queryset to the
     requesting user (rather than checking ownership after lookup) means someone else's
     review ID 404s instead of 403ing, so it doesn't even confirm the review exists.
     """

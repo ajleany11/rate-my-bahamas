@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import EditReviewModal from '../components/EditReviewModal'
-import { getMyReviews } from '../api/reviews'
+import { deleteReview, getMyReviews } from '../api/reviews'
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
@@ -12,6 +12,8 @@ function MyRatings() {
   const [reviews, setReviews] = useState(null)
   const [error, setError] = useState(null)
   const [editingReview, setEditingReview] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
+  const [deleteError, setDeleteError] = useState(null)
 
   useEffect(() => {
     getMyReviews()
@@ -24,6 +26,24 @@ function MyRatings() {
     setEditingReview(null)
   }
 
+  async function handleDelete(review) {
+    const confirmed = window.confirm(
+      `Delete your rating for ${review.professor.name} (${review.course.code})? This cannot be undone.`
+    )
+    if (!confirmed) return
+
+    setDeleteError(null)
+    setDeletingId(review.id)
+    try {
+      await deleteReview(review.id)
+      setReviews((current) => current.filter((r) => r.id !== review.id))
+    } catch (err) {
+      setDeleteError(err.message)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
@@ -33,6 +53,7 @@ function MyRatings() {
         <p className="mt-1 text-sm text-slate-500">Ratings you&apos;ve submitted. You can edit any of them below.</p>
 
         {error && <p className="mt-6 text-slate-500">{error}</p>}
+        {deleteError && <p className="mt-6 text-red-600 text-sm">{deleteError}</p>}
         {!error && !reviews && <p className="mt-6 text-slate-500">Loading...</p>}
         {reviews && reviews.length === 0 && (
           <p className="mt-6 text-slate-500">You haven&apos;t rated any professors yet.</p>
@@ -78,13 +99,23 @@ function MyRatings() {
 
                 {review.comment && <p className="mt-3 text-slate-700">{review.comment}</p>}
 
-                <button
-                  type="button"
-                  onClick={() => setEditingReview(review)}
-                  className="mt-4 text-sm font-semibold text-amber-600 border border-amber-200 rounded-full px-4 py-1.5 hover:bg-amber-50"
-                >
-                  Edit Rating
-                </button>
+                <div className="mt-4 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingReview(review)}
+                    className="text-sm font-semibold text-amber-600 border border-amber-200 rounded-full px-4 py-1.5 hover:bg-amber-50"
+                  >
+                    Edit Rating
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(review)}
+                    disabled={deletingId === review.id}
+                    className="text-sm font-semibold text-red-600 border border-red-200 rounded-full px-4 py-1.5 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    {deletingId === review.id ? 'Deleting...' : 'Delete Rating'}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
