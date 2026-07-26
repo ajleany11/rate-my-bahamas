@@ -1,4 +1,7 @@
 from django.db.models import Count, Q
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,9 +11,12 @@ from professors.serializers import CourseSerializer, ProfessorSerializer
 from schools.models import College, School
 from schools.serializers import CollegeListSerializer, SchoolSearchSerializer
 
+from config.settings import CACHE_TTL_SHORT, CACHE_TTL_MEDIUM
+
 AUTOCOMPLETE_LIMIT = 5
 
 
+@method_decorator(cache_page(CACHE_TTL_SHORT), name='dispatch')
 class SearchView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -50,6 +56,12 @@ class SearchAutocompleteView(APIView):
         if not query:
             return Response({'suggestions': []})
 
+        # Cache per-query autocomplete responses for a short time
+        cache_key = f"autocomplete:{query.lower()}"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response({'suggestions': cached})
+
         suggestions = []
 
         for course in Course.objects.filter(
@@ -83,4 +95,5 @@ class SearchAutocompleteView(APIView):
                 'query': college.name,
             })
 
+        cache.set(cache_key, suggestions, timeout=CACHE_TTL_SHORT)
         return Response({'suggestions': suggestions})

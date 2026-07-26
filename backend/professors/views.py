@@ -1,5 +1,8 @@
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +20,7 @@ from .serializers import (
     ReviewCreateSerializer,
     top_rated_professors,
 )
+from config.settings import CACHE_TTL_MEDIUM, CACHE_TTL_LONG, CACHE_TTL_SHORT
 
 TOP_RATED_PROFESSORS_LIMIT = 5
 
@@ -30,6 +34,7 @@ class CourseDetailView(generics.RetrieveAPIView):
     lookup_field = 'code'
 
 
+@method_decorator(cache_page(CACHE_TTL_MEDIUM), name='dispatch')
 class SimilarCoursesView(generics.ListAPIView):
     serializer_class = CourseSerializer
     permission_classes = [permissions.AllowAny]
@@ -52,6 +57,7 @@ class ProfessorCourseCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+@method_decorator(cache_page(CACHE_TTL_MEDIUM), name='dispatch')
 class ProfessorListView(generics.ListAPIView):
     queryset = Professor.objects.all().order_by('name')
     serializer_class = ProfessorSerializer
@@ -62,19 +68,24 @@ class TopRatedProfessorsView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        results = [
-            {
-                'id': professor.id,
-                'name': professor.name,
-                'department': professor.department,
-                'slug': professor.slug,
-                'photo_url': professor.photo_url,
-                'overall_average_rating': overall['average_rating'],
-                'overall_would_take_again_percent': overall['would_take_again_percent'],
-                'overall_review_count': overall['review_count'],
-            }
-            for professor, overall in top_rated_professors(TOP_RATED_PROFESSORS_LIMIT)
-        ]
+        # Use low-level cache to avoid recomputing the expensive aggregation used by top_rated_professors
+        cache_key = f"top_rated_professors:{TOP_RATED_PROFESSORS_LIMIT}"
+        results = cache.get(cache_key)
+        if results is None:
+            results = [
+                {
+                    'id': professor.id,
+                    'name': professor.name,
+                    'department': professor.department,
+                    'slug': professor.slug,
+                    'photo_url': professor.photo_url,
+                    'overall_average_rating': overall['average_rating'],
+                    'overall_would_take_again_percent': overall['would_take_again_percent'],
+                    'overall_review_count': overall['review_count'],
+                }
+                for professor, overall in top_rated_professors(TOP_RATED_PROFESSORS_LIMIT)
+            ]
+            cache.set(cache_key, results, timeout=CACHE_TTL_LONG)
         return Response(results)
 
 

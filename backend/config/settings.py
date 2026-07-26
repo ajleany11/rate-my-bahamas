@@ -195,6 +195,35 @@ FRONTEND_DIST_DIR = BASE_DIR / 'frontend_dist'
 if FRONTEND_DIST_DIR.exists():
     WHITENOISE_ROOT = FRONTEND_DIST_DIR
 
+# Caching configuration
+# If REDIS_URL (e.g. redis://host:6379/1) is provided in env, use django-redis
+# otherwise fall back to local-memory cache (suitable for single-process dev).
+REDIS_URL = os.environ.get('REDIS_URL', '')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                # 'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+            },
+        }
+    }
+else:
+    # Development fallback — not suitable for multi-process production deployments
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
+
+# Reasonable default TTLs (seconds) for common cache usage in this project.
+CACHE_TTL_SHORT = 60        # 1 minute for very dynamic endpoints (autocomplete/search)
+CACHE_TTL_MEDIUM = 60 * 5   # 5 minutes for list pages
+CACHE_TTL_LONG = 60 * 60    # 1 hour for top-rated/mostly-static data
+
 # Payoneer Checkout (billing). Blank until set in .env — checkout/notification
 # views fail gracefully with a clear error until they're configured.
 # PAYONEER_API_USERNAME / PAYONEER_PAYMENT_TOKEN come from the merchant portal:

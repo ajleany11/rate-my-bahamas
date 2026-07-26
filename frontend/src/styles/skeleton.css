@@ -1,0 +1,43 @@
+.page-skeleton {
+  padding: 16px;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #eaeaea 25%, #f5f5f5 37%, #eaeaea 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s linear infinite;
+  border-radius: 6px;
+}
+
+.skeleton.header {
+  height: 56px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.skeleton.container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .skeleton.container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.skeleton.card {
+  height: 120px;
+  width: 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
