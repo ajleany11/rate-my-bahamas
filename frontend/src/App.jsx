@@ -9,6 +9,8 @@ import ResetPassword from './pages/ResetPassword'
 import CourseDetail from './pages/CourseDetail'
 import Dashboard from './pages/Dashboard'
 import MyRatings from './pages/MyRatings'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 import CollegeDetail from './pages/CollegeDetail'
 import Colleges from './pages/Colleges'
 import ProfessorCourseReviews from './pages/ProfessorCourseReviews'
@@ -76,6 +78,8 @@ function App() {
         <Route path="/subscribe" element={<LoaderWrapper><Subscribe /></LoaderWrapper>} />
         <Route path="/subscribe/success" element={<LoaderWrapper><SubscribeSuccess /></LoaderWrapper>} />
         <Route path="/auth/callback" element={<LoaderWrapper><AuthCallback /></LoaderWrapper>} />
+        <Route path="/privacy" element={<LoaderWrapper><PrivacyPolicy /></LoaderWrapper>} />
+        <Route path="/terms" element={<LoaderWrapper><TermsOfService /></LoaderWrapper>} />
         <Route
           path="/dashboard"
           element={

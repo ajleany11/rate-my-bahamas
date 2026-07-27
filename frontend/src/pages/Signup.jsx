@@ -212,7 +212,19 @@ function Signup() {
           />
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
+        <p className="text-center text-xs text-slate-400 mt-6">
+          By creating an account, you agree to our{' '}
+          <Link to="/terms" className="text-blue-900 hover:underline">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link to="/privacy" className="text-blue-900 hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+
+        <p className="text-center text-sm text-slate-500 mt-3">
           Already have an account?{' '}
           <Link to="/login" className="font-medium text-blue-900 hover:text-blue-700">
             Sign in
