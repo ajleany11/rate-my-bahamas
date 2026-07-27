@@ -29,6 +29,13 @@ TOP_RATED_PROFESSORS_LIMIT = 5
 SIMILAR_COURSES_LIMIT = 6
 
 
+@method_decorator(cache_page(CACHE_TTL_MEDIUM), name='dispatch')
+class CourseListView(generics.ListAPIView):
+    queryset = Course.objects.all().order_by('code')
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.AllowAny]
+
+
 class CourseDetailView(generics.RetrieveAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer

@@ -10,11 +10,16 @@ function PillDropdown({
   getItemSublabel,
   viewAllTo,
   viewAllLabel,
+  searchable = false,
+  searchPlaceholder = 'Search...',
+  filterItem,
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
+  const [query, setQuery] = useState('')
   const containerRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     if (!isOpen || items.length > 0) return
@@ -32,6 +37,19 @@ function PillDropdown({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (isOpen && searchable) {
+      inputRef.current?.focus()
+    } else if (!isOpen) {
+      setQuery('')
+    }
+  }, [isOpen, searchable])
+
+  const trimmedQuery = query.trim().toLowerCase()
+  const visibleItems = searchable && trimmedQuery
+    ? items.filter((item) => filterItem(item, trimmedQuery))
+    : items
 
   return (
     <div ref={containerRef} className="relative">
@@ -54,28 +72,47 @@ function PillDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-lg border border-slate-100 bg-white shadow-lg py-1 z-20 text-left">
-          {error && <p className="px-4 py-2 text-sm text-slate-400">{error}</p>}
-          {!error && items.length === 0 && (
-            <p className="px-4 py-2 text-sm text-slate-400">Loading...</p>
+        <div className="absolute left-0 mt-2 w-64 max-h-80 flex flex-col rounded-lg border border-slate-100 bg-white shadow-lg z-20 text-left overflow-hidden">
+          {searchable && (
+            <div className="p-2 border-b border-slate-100 shrink-0">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full rounded-md border border-slate-200 px-2.5 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-blue-900"
+              />
+            </div>
           )}
-          {!error &&
-            items.map((item) => (
-              <Link
-                key={getItemKey(item)}
-                to={getItemLink(item)}
-                onClick={() => setIsOpen(false)}
-                className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-900"
-              >
-                <span>{getItemLabel(item)}</span>
-                {getItemSublabel && <span className="block text-xs text-slate-400">{getItemSublabel(item)}</span>}
-              </Link>
-            ))}
+
+          <div className="overflow-y-auto py-1">
+            {error && <p className="px-4 py-2 text-sm text-slate-400">{error}</p>}
+            {!error && items.length === 0 && (
+              <p className="px-4 py-2 text-sm text-slate-400">Loading...</p>
+            )}
+            {!error && items.length > 0 && visibleItems.length === 0 && (
+              <p className="px-4 py-2 text-sm text-slate-400">No matches.</p>
+            )}
+            {!error &&
+              visibleItems.map((item) => (
+                <Link
+                  key={getItemKey(item)}
+                  to={getItemLink(item)}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-900"
+                >
+                  <span>{getItemLabel(item)}</span>
+                  {getItemSublabel && <span className="block text-xs text-slate-400">{getItemSublabel(item)}</span>}
+                </Link>
+              ))}
+          </div>
+
           {viewAllTo && (
             <Link
               to={viewAllTo}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-blue-900 hover:bg-slate-50 border-t border-slate-100"
+              className="block px-4 py-2 text-sm font-medium text-blue-900 hover:bg-slate-50 border-t border-slate-100 shrink-0"
             >
               {viewAllLabel}
             </Link>

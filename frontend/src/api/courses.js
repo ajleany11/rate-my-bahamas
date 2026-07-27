@@ -2,6 +2,14 @@ import { authFetch } from './auth'
 
 const API_BASE_URL = ''
 
+export async function getAllCourses() {
+  const res = await fetch(`${API_BASE_URL}/api/courses/`)
+  if (!res.ok) {
+    throw new Error('Failed to load courses.')
+  }
+  return res.json()
+}
+
 export async function getCourseDetail(code) {
   const res = await fetch(`${API_BASE_URL}/api/courses/${code}/`)
   if (!res.ok) {

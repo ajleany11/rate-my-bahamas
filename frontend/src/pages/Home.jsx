@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar'
 import PillDropdown from '../components/PillDropdown'
 import { getTopRatedProfessors } from '../api/professors'
 import { getAllSchools, getColleges } from '../api/colleges'
+import { getAllCourses } from '../api/courses'
 
 function initials(name) {
   return name
@@ -65,6 +66,19 @@ function Home() {
               getItemLink={(school) => `/schools/${school.slug}`}
               getItemLabel={(school) => school.name}
               getItemSublabel={(school) => school.college.name}
+            />
+            <PillDropdown
+              label="Classes"
+              loadItems={getAllCourses}
+              getItemKey={(course) => course.id}
+              getItemLink={(course) => `/courses/${course.code}`}
+              getItemLabel={(course) => course.code}
+              getItemSublabel={(course) => course.name}
+              searchable
+              searchPlaceholder="Search by code or name..."
+              filterItem={(course, query) =>
+                course.code.toLowerCase().includes(query) || course.name.toLowerCase().includes(query)
+              }
             />
           </div>
         </div>
